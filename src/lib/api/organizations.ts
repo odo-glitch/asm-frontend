@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -33,9 +33,9 @@ export interface OrganizationsResponse {
 }
 
 export class OrganizationsAPI {
-  private supabase: any;
+  private supabase: SupabaseClient;
 
-  constructor(supabaseClient: any) {
+  constructor(supabaseClient: SupabaseClient) {
     this.supabase = supabaseClient;
   }
 

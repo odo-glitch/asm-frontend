@@ -30,7 +30,7 @@ export default function InvitePage() {
       
       // Redirect back to accounts page
       setTimeout(() => router.push('/accounts'), 1500);
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to send invitation',

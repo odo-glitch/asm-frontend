@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { ChevronDown, Plus, Building, Check } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
@@ -31,9 +31,26 @@ export function BrandSwitcher({ currentOrgId, onOrgChange }: BrandSwitcherProps)
   const supabase = createClient();
   const orgsAPI = new OrganizationsAPI(supabase);
 
+  const loadOrganizations = useCallback(async () => {
+    try {
+      const { organizations: orgs } = await orgsAPI.getUserOrganizations();
+      setOrganizations(orgs);
+    } catch (error) {
+      console.error('Error loading organizations:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load organizations',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [orgsAPI, toast]);
+
   useEffect(() => {
+    setLoading(true);
     loadOrganizations();
-  }, []);
+  }, [loadOrganizations]);
 
   useEffect(() => {
     // Close dropdown when clicking outside
@@ -63,21 +80,7 @@ export function BrandSwitcher({ currentOrgId, onOrgChange }: BrandSwitcherProps)
     }
   }, [organizations, currentOrgId]);
 
-  const loadOrganizations = async () => {
-    try {
-      const { organizations: orgs } = await orgsAPI.getUserOrganizations();
-      setOrganizations(orgs);
-    } catch (error) {
-      console.error('Error loading organizations:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load organizations',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+
 
   const handleOrgSelect = (org: Organization) => {
     setCurrentOrg(org);

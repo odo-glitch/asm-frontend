@@ -117,7 +117,14 @@ export async function fetchAnalyticsData(timeframe: string = '30days'): Promise<
   }
 }
 
-function processEngagementData(events: any[], days: number) {
+interface AnalyticsEvent {
+  created_at: string;
+  event_type: string;
+  value?: number;
+  platform?: string;
+}
+
+function processEngagementData(events: AnalyticsEvent[], days: number) {
   const data = []
   const today = new Date()
   
@@ -145,10 +152,18 @@ function processEngagementData(events: any[], days: number) {
   return data
 }
 
-function processPlatformData(events: any[]) {
-  const platformMap = new Map()
+interface PlatformData {
+  platform: string;
+  engagement: number;
+  accountName: string;
+}
+
+function processPlatformData(events: AnalyticsEvent[]) {
+  const platformMap = new Map<string, PlatformData>()
   
   events.forEach(event => {
+    if (!event.platform) return
+    
     const key = event.platform
     if (!platformMap.has(key)) {
       platformMap.set(key, {
@@ -160,15 +175,17 @@ function processPlatformData(events: any[]) {
     
     if (['engagement', 'like', 'comment', 'share'].includes(event.event_type)) {
       const current = platformMap.get(key)
-      current.engagement += (event.value || 1)
-      platformMap.set(key, current)
+      if (current) {
+        current.engagement += (event.value || 1)
+        platformMap.set(key, current)
+      }
     }
   })
   
   return Array.from(platformMap.values())
 }
 
-function processFollowerGrowth(history: any[]) {
+function processFollowerGrowth(history: FollowerHistory[]) {
   // Group by week
   const weeklyData = []
   const weeks = 7
@@ -193,7 +210,12 @@ function processFollowerGrowth(history: any[]) {
   return weeklyData
 }
 
-function calculateFollowerGrowth(history: any[]): number {
+interface FollowerHistory {
+  recorded_at: string;
+  follower_count: number;
+}
+
+function calculateFollowerGrowth(history: FollowerHistory[]): number {
   if (history.length < 2) return 0
   
   const sorted = history.sort((a, b) => 
@@ -206,7 +228,16 @@ function calculateFollowerGrowth(history: any[]): number {
   return newest.follower_count - oldest.follower_count
 }
 
-function formatTopPosts(posts: any[]) {
+interface Post {
+  id: string;
+  content?: string;
+  platform: string;
+  likes?: number;
+  comments?: number;
+  posted_at: string;
+}
+
+function formatTopPosts(posts: Post[]) {
   return posts.map(post => ({
     id: post.id,
     content: post.content || 'No content available',

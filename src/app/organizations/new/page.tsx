@@ -208,7 +208,7 @@ export default function NewOrganizationPage() {
             <div className="mt-8 p-4 bg-blue-50 rounded-lg">
               <h4 className="font-medium text-blue-900 mb-2">What happens next?</h4>
               <ul className="text-sm text-blue-800 space-y-1">
-                <li>• You'll be the owner of this brand organization</li>
+                <li>• You&apos;ll be the owner of this brand organization</li>
                 <li>• You can invite team members to collaborate</li>
                 <li>• Connect your social media accounts to this brand</li>
                 <li>• Start creating and scheduling content</li>

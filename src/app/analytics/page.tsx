@@ -5,9 +5,8 @@ import { Sidebar } from '@/components/dashboard/Sidebar'
 import { CreatePostModal } from '@/components/dashboard/CreatePostModal'
 import { Card } from '@/components/ui/card'
 import { SocialAccount, fetchUserSocialAccounts } from '@/lib/social-accounts'
-import { fetchAnalyticsData, AnalyticsData } from '@/lib/analytics'
+import { fetchAnalyticsData } from '@/lib/analytics'
 import { 
-  TrendingUp, 
   Users, 
   Eye, 
   MessageSquare,
@@ -74,7 +73,18 @@ export default function AnalyticsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [accounts, setAccounts] = useState<SocialAccount[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [analyticsData, setAnalyticsData] = useState<any>({
+  interface AnalyticsDataType {
+    totalImpressions: number;
+    totalEngagements: number;
+    followerGrowth: number;
+    postsPublished: number;
+    engagementData: Array<{ day: string; engagement: number; impressions: number }>;
+    platformData: Array<{ platform: string; engagement: number; accountName: string }>;
+    followerGrowthData: Array<{ week: string; followers: number }>;
+    topPosts: Array<{ id: string; content: string; platform: string; likes: number; comments: number; date: string }>;
+  }
+
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsDataType>({
     totalImpressions: 0,
     totalEngagements: 0,
     followerGrowth: 0,
@@ -131,7 +141,7 @@ export default function AnalyticsPage() {
           }))
 
           // Platform data based on connected accounts
-          const platforms = accounts.reduce((acc: any[], account: SocialAccount) => {
+          const platforms = accounts.reduce((acc: Array<{ platform: string; engagement: number; accountName: string }>, account: SocialAccount) => {
             const engagementValue = Math.floor(Math.random() * 5000) + 1000
             acc.push({ 
               platform: account.platform.charAt(0).toUpperCase() + account.platform.slice(1),
@@ -167,7 +177,7 @@ export default function AnalyticsPage() {
             engagementData: engagement,
             platformData: platforms,
             followerGrowthData: followerGrowth,
-            topPosts: posts.sort((a: any, b: any) => b.likes - a.likes).slice(0, 5)
+            topPosts: posts.sort((a, b) => b.likes - a.likes).slice(0, 5)
           })
         }
       } catch (error) {
@@ -367,7 +377,7 @@ export default function AnalyticsPage() {
               </tr>
             </thead>
             <tbody>
-              {analyticsData.topPosts.map((post: any) => (
+              {analyticsData.topPosts.map((post) => (
                 <tr key={post.id} className="border-b hover:bg-gray-50 transition-colors">
                   <td className="py-4 px-4">
                     <p className="text-sm line-clamp-2 max-w-md">{post.content}</p>

@@ -103,7 +103,7 @@ const mockReviews: Review[] = [
 export default function BusinessProfilePage() {
   const [accounts, setAccounts] = useState<SocialAccount[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<{ id: string; email?: string } | null>(null)
   const [activeTab, setActiveTab] = useState<'performance' | 'reviews'>('performance')
   const [selectedReview, setSelectedReview] = useState<Review | null>(mockReviews[0])
   const [replyText, setReplyText] = useState('')

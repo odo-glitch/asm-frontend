@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { OrganizationsAPI } from '@/lib/api/organizations';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -37,25 +37,14 @@ export default function AccountsPage() {
   const supabase = createClient();
   const orgsAPI = new OrganizationsAPI(supabase);
 
-  useEffect(() => {
-    loadOrganizations();
-    getCurrentUser();
-  }, []);
-
-  useEffect(() => {
-    if (selectedOrg) {
-      loadTeamMembers(selectedOrg);
-    }
-  }, [selectedOrg]);
-
-  const getCurrentUser = async () => {
+  const getCurrentUser = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       setCurrentUserEmail(user.email || '');
     }
-  };
+  }, [supabase]);
 
-  const loadOrganizations = async () => {
+  const loadOrganizations = useCallback(async () => {
     try {
       const { organizations: orgs } = await orgsAPI.getUserOrganizations();
       setOrganizations(orgs);
@@ -72,9 +61,9 @@ export default function AccountsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [supabase, toast]);
 
-  const loadTeamMembers = async (orgId: string) => {
+  const loadTeamMembers = useCallback(async (orgId: string) => {
     try {
       const { organization } = await orgsAPI.getOrganization(orgId);
       if (organization.members) {
@@ -91,7 +80,18 @@ export default function AccountsPage() {
         variant: 'destructive',
       });
     }
-  };
+  }, [orgsAPI, toast]);
+
+  useEffect(() => {
+    loadOrganizations();
+    getCurrentUser();
+  }, [loadOrganizations, getCurrentUser]);
+
+  useEffect(() => {
+    if (selectedOrg) {
+      loadTeamMembers(selectedOrg);
+    }
+  }, [selectedOrg, loadTeamMembers]);
 
   const removeMember = async (userId: string) => {
     if (!selectedOrg) return;
@@ -303,7 +303,7 @@ export default function AccountsPage() {
             {teamMembers.length >= teamLimit && (
               <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                 <p className="text-sm text-yellow-800">
-                  You've reached the team member limit for your current plan.
+                  You&apos;ve reached the team member limit for your current plan.
                   <a href="/pricing" className="ml-1 underline font-medium">
                     Upgrade to add more members
                   </a>

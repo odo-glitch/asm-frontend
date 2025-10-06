@@ -6,13 +6,9 @@ import { Card } from '@/components/ui/card'
 import { SocialAccount, fetchUserSocialAccounts } from '@/lib/social-accounts'
 import { 
   ContentItem,
-  ContentFolder,
   fetchContentItems,
   fetchContentFolders,
   uploadContent,
-  deleteContentItem,
-  updateContentItem,
-  createFolder,
   getCanvaAuthUrl,
   getDropboxAuthUrl
 } from '@/lib/content-library'
@@ -23,15 +19,12 @@ import {
   Video, 
   FileText,
   Search,
-  Filter,
   Grid,
   List,
   Download,
   Trash2,
   Edit,
-  MoreVertical,
-  FolderPlus,
-  ExternalLink
+  FolderPlus
 } from 'lucide-react'
 
 interface ContentLibraryState {
@@ -66,9 +59,9 @@ function ContentTypeIcon({ type }: { type: string }) {
 
 export default function LibraryPage() {
   const [accounts, setAccounts] = useState<SocialAccount[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [showUploadModal, setShowUploadModal] = useState(false)
-  const [selectedItems, setSelectedItems] = useState<string[]>([])
+  const [, setIsLoading] = useState(true) // isLoading - will be used for loading state
+  // const [showUploadModal, setShowUploadModal] = useState(false) // Will be used for upload modal
+  // const [selectedItems, setSelectedItems] = useState<string[]>([]) // Will be used for multi-select
   
   const [library, setLibrary] = useState<ContentLibraryState>({
     items: [],
@@ -266,7 +259,7 @@ export default function LibraryPage() {
               {/* Filter by type */}
               <select
                 value={library.filterType}
-                onChange={(e) => setLibrary(prev => ({ ...prev, filterType: e.target.value as any }))}
+                onChange={(e) => setLibrary(prev => ({ ...prev, filterType: e.target.value as 'all' | 'image' | 'video' | 'document' }))}
                 className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="all">All Types</option>
@@ -332,6 +325,7 @@ export default function LibraryPage() {
                     <Card key={item.id} className="p-4 hover:shadow-lg transition-shadow cursor-pointer">
                       <div className="aspect-video bg-gray-100 rounded-lg mb-3 flex items-center justify-center">
                         {item.type === 'image' && item.thumbnail_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
                           <img src={item.thumbnail_url} alt={item.name} className="w-full h-full object-cover rounded-lg" />
                         ) : (
                           <ContentTypeIcon type={item.type} />

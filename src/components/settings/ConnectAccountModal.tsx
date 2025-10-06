@@ -90,7 +90,7 @@ export function ConnectAccountModal({ isOpen, onClose, existingAccounts, userId,
 
         <div className="p-6 space-y-4">
           <p className="text-sm text-gray-600 mb-6">
-            Choose a social media platform to connect. You'll be redirected to authenticate with the platform.
+            Choose a social media platform to connect. You&apos;ll be redirected to authenticate with the platform.
           </p>
 
           {error && (

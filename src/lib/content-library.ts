@@ -12,7 +12,7 @@ export interface ContentItem {
   source: 'upload' | 'canva' | 'dropbox'
   folder?: string | null
   tags: string[]
-  metadata?: any
+  metadata?: Record<string, unknown>
   created_at: string
   updated_at: string
 }

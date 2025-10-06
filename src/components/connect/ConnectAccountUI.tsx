@@ -62,8 +62,8 @@ export default function ConnectAccountUI({ existingConnections }: ConnectAccount
     setError(null)
 
     try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: PLATFORMS[platform].provider as any,
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: PLATFORMS[platform].provider as 'google' | 'facebook' | 'twitter' | 'linkedin',
         options: {
           redirectTo: `${window.location.origin}/api/auth/callback?platform=${platform}`,
           scopes: platform === 'linkedin' ? 'r_liteprofile r_emailaddress' : undefined

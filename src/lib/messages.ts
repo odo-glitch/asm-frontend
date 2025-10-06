@@ -10,7 +10,7 @@ export interface Conversation {
   last_message?: string | null
   last_message_time: string
   unread_count: number
-  metadata?: any
+  metadata?: Record<string, unknown>
   created_at: string
   updated_at: string
 }
@@ -23,7 +23,7 @@ export interface Message {
   sender: 'user' | 'customer'
   timestamp: string
   read: boolean
-  metadata?: any
+  metadata?: Record<string, unknown>
   created_at: string
 }
 

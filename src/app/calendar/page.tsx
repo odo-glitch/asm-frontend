@@ -11,7 +11,6 @@ import {
   ChevronLeft, 
   ChevronRight, 
   Calendar as CalendarIcon,
-  Plus,
   Sparkles,
   Facebook,
   Twitter,
@@ -228,7 +227,7 @@ export default function CalendarPage() {
   const handleGenerateCalendar = async (config: CalendarGenerationConfig) => {
     setIsGenerating(true)
     try {
-      const generatedPosts = await generateCalendarPosts(config)
+      await generateCalendarPosts(config)
       // Refresh scheduled posts after generation
       const posts = await fetchScheduledPosts()
       setScheduledPosts(posts)

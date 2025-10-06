@@ -200,7 +200,7 @@ function generateMockMessages(conversationId: string): Message[] {
 export default function InboxPage() {
   const [accounts, setAccounts] = useState<SocialAccount[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<{ id: string; email?: string } | null>(null)
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
   const [selectedMessages, setSelectedMessages] = useState<Message[]>([])
@@ -238,11 +238,11 @@ export default function InboxPage() {
             setSelectedConversation(mockConvs[0])
             setSelectedMessages(generateMockMessages(mockConvs[0].id))
           }
-        } catch (error: any) {
+        } catch (error) {
           console.error('Failed to fetch conversations:', error)
           
           // Check if it's a "relation does not exist" error
-          if (error?.message?.includes('relation') && error?.message?.includes('does not exist')) {
+          if (error instanceof Error && error.message?.includes('relation') && error.message?.includes('does not exist')) {
             setDbError('Database tables not found. Please run migrations to enable message storage.')
             console.warn('📋 Database tables not found. Please run the migration:')
             console.warn('📋 npx supabase migration up')
@@ -409,6 +409,7 @@ export default function InboxPage() {
                       <div className="relative flex-shrink-0">
                         <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
                           {conversation.customer_avatar ? (
+                            // eslint-disable-next-line @next/next/no-img-element
                             <img 
                               src={conversation.customer_avatar} 
                               alt={conversation.customer_name}
