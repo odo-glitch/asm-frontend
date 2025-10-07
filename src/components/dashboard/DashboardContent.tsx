@@ -21,9 +21,19 @@ export function DashboardContent({ userEmail }: DashboardContentProps) {
       setIsLoading(true);
       try {
         const fetchedAccounts = await fetchUserSocialAccounts();
-        setAccounts(fetchedAccounts);
+        if (Array.isArray(fetchedAccounts)) {
+          setAccounts(fetchedAccounts);
+        } else {
+          console.error('Unexpected response format:', fetchedAccounts);
+          setAccounts([]);
+        }
       } catch (error) {
-        console.error('Failed to load accounts:', error);
+        console.error('Failed to load accounts:', {
+          error,
+          message: error instanceof Error ? error.message : 'Unknown error',
+          stack: error instanceof Error ? error.stack : undefined
+        });
+        setAccounts([]);
       } finally {
         setIsLoading(false);
       }

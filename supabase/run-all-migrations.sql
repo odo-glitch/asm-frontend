@@ -207,6 +207,54 @@ CREATE TABLE IF NOT EXISTS content_folders (
   UNIQUE(user_id, name, parent_id)
 );
 
+-- Create super admins table
+CREATE TABLE IF NOT EXISTS super_admins (
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+  granted_at TIMESTAMPTZ DEFAULT NOW(),
+  granted_by UUID REFERENCES auth.users(id),
+  reason TEXT
+);
+
+-- Enable RLS on super_admins
+ALTER TABLE super_admins ENABLE ROW LEVEL SECURITY;
+
+-- Create super admin helper functions
+CREATE OR REPLACE FUNCTION is_super_admin(user_uuid UUID)
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (SELECT 1 FROM super_admins WHERE user_id = user_uuid);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE FUNCTION is_current_user_super_admin()
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (SELECT 1 FROM super_admins WHERE user_id = auth.uid());
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Create admin views
+CREATE OR REPLACE VIEW admin_all_organizations AS
+SELECT 
+  o.*,
+  (SELECT COUNT(*) FROM user_organizations WHERE organization_id = o.id) as member_count,
+  (SELECT COUNT(*) FROM social_accounts WHERE organization_id = o.id) as social_account_count
+FROM organizations o
+WHERE is_current_user_super_admin();
+
+CREATE OR REPLACE VIEW admin_user_organization_summary AS
+SELECT 
+  u.id,
+  u.email,
+  u.created_at as user_created_at,
+  COUNT(DISTINCT uo.organization_id) as organization_count,
+  ARRAY_AGG(DISTINCT o.name) as organization_names
+FROM auth.users u
+LEFT JOIN user_organizations uo ON u.id = uo.user_id
+LEFT JOIN organizations o ON uo.organization_id = o.id
+WHERE is_current_user_super_admin()
+GROUP BY u.id, u.email, u.created_at;
+
 -- Create all indexes
 CREATE INDEX IF NOT EXISTS idx_organizations_slug ON organizations(slug);
 CREATE INDEX IF NOT EXISTS idx_user_organizations_user ON user_organizations(user_id);
@@ -283,9 +331,10 @@ DROP POLICY IF EXISTS "Users can manage their own folders" ON content_folders;
 
 -- Create RLS policies
 -- Organizations policies
-CREATE POLICY "Users can view organizations they belong to"
+CREATE POLICY "Users can view organizations"
   ON organizations FOR SELECT
   USING (
+    is_current_user_super_admin() OR
     EXISTS (
       SELECT 1 FROM user_organizations
       WHERE user_organizations.organization_id = organizations.id
@@ -293,9 +342,10 @@ CREATE POLICY "Users can view organizations they belong to"
     )
   );
 
-CREATE POLICY "Only organization owners can update"
+CREATE POLICY "Organization owners and super admins can update"
   ON organizations FOR UPDATE
   USING (
+    is_current_user_super_admin() OR
     EXISTS (
       SELECT 1 FROM user_organizations
       WHERE user_organizations.organization_id = organizations.id
@@ -379,9 +429,10 @@ CREATE POLICY "Organization admins can create invitations"
   );
 
 -- Social accounts policies (updated to support organizations)
-CREATE POLICY "Users can view social accounts they have access to"
+CREATE POLICY "Users can view accessible social accounts"
   ON social_accounts FOR SELECT
   USING (
+    is_current_user_super_admin() OR
     (user_id = auth.uid() AND organization_id IS NULL) OR
     (organization_id IS NOT NULL AND EXISTS (
       SELECT 1 FROM user_organizations

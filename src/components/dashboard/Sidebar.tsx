@@ -39,7 +39,16 @@ const platformColors = {
 
 export function Sidebar({ accounts, onCreatePost }: SidebarProps) {
   const pathname = usePathname();
-  const [selectedOrgId, setSelectedOrgId] = useState<string>('');
+  const [selectedOrgId, setSelectedOrgId] = useState<string>(() => 
+    typeof window !== 'undefined' ? localStorage.getItem('selectedOrgId') || '' : ''
+  );
+  
+  const handleOrgChange = (orgId: string) => {
+    if (orgId !== selectedOrgId) {
+      setSelectedOrgId(orgId);
+      localStorage.setItem('selectedOrgId', orgId);
+    }
+  };
   
   const getPlatformIcon = (platform: string) => {
     const Icon = platformIcons[platform as keyof typeof platformIcons] || Twitter;
@@ -62,7 +71,7 @@ export function Sidebar({ accounts, onCreatePost }: SidebarProps) {
       {/* Brand Switcher at the top */}
       <BrandSwitcher 
         currentOrgId={selectedOrgId}
-        onOrgChange={(orgId) => setSelectedOrgId(orgId)}
+        onOrgChange={handleOrgChange}
       />
       
       <nav className="p-4 space-y-8 flex-1">

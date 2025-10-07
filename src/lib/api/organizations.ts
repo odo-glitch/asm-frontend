@@ -1,6 +1,20 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+interface OrganizationRecord {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  logo_url?: string;
+  website?: string;
+  created_at: string;
+}
+
+interface OrganizationMemberRecord {
+  organization: OrganizationRecord;
+  role: 'owner' | 'admin' | 'member' | 'viewer';
+  joined_at: string;
+}
 
 export interface Organization {
   id: string;
@@ -51,42 +65,175 @@ export class OrganizationsAPI {
    * Get all organizations the current user is a member of
    */
   async getUserOrganizations(): Promise<OrganizationsResponse> {
-    const token = await this.getAuthToken();
-    
-    const response = await fetch(`${API_BASE_URL}/api/organizations`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+    try {
+      const { data: { user }, error: authError } = await this.supabase.auth.getUser();
+      if (authError) {
+        console.error('Auth error:', {
+          message: authError.message,
+          status: authError.status,
+          name: authError.name,
+          stack: authError.stack
+        });
+        throw new Error(`Authentication failed: ${authError.message}`);
       }
-    });
+      if (!user) {
+        throw new Error('No authenticated user found');
+      }
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to fetch organizations');
+      // Log user info for debugging
+      console.log('Authenticated user:', { 
+        id: user.id, 
+        email: user.email,
+        role: user.role 
+      });
+
+      // First check if user is super admin
+      const { data: adminData, error: adminError } = await this.supabase
+        .from('super_admins')
+        .select('user_id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (adminError) {
+        console.error('Super admin check error:', {
+          message: adminError.message,
+          code: adminError.code,
+          details: adminError.details,
+          hint: adminError.hint
+        });
+      }
+
+      const isSuperAdmin = !adminError && adminData;
+
+      // Get organizations user is a member of
+      const { data: orgs, error: orgsError, count } = await this.supabase
+        .from('organization_members')
+        .select(`
+          organization:organizations (
+            id,
+            name,
+            slug,
+            description,
+            logo_url,
+            website,
+            created_at
+          ),
+          role,
+          joined_at
+        `, { count: 'exact' })
+        .eq('user_id', user.id)
+        .returns<OrganizationMemberRecord[]>();
+
+      if (orgsError) {
+        console.error('Organization fetch error:', {
+          message: orgsError.message,
+          code: orgsError.code,
+          details: orgsError.details,
+          hint: orgsError.hint
+        });
+        throw new Error(`Failed to fetch organizations: ${orgsError.message}`);
+      }
+
+      // Log successful fetch
+      console.log('Organizations fetched:', {
+        count: orgs?.length || 0,
+        isSuperAdmin
+      });
+
+      // Transform the data to match the expected format
+      const organizations: Organization[] = (orgs || []).map(org => ({
+        id: org.organization.id,
+        name: org.organization.name,
+        slug: org.organization.slug,
+        description: org.organization.description,
+        logo_url: org.organization.logo_url,
+        website: org.organization.website,
+        created_at: org.organization.created_at,
+        role: org.role,
+        joined_at: org.joined_at
+      }));
+
+      return {
+        organizations,
+        is_super_admin: !!isSuperAdmin,
+        total_count: count || 0
+      };
+    } catch (error) {
+      console.error('Error in getUserOrganizations:', {
+        error,
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      throw error;
     }
-
-    return response.json();
   }
 
   /**
    * Get details for a specific organization
    */
   async getOrganization(organizationId: string): Promise<{ organization: OrganizationDetails }> {
-    const token = await this.getAuthToken();
-    
-    const response = await fetch(`${API_BASE_URL}/api/organizations/${organizationId}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+    try {
+      const { data, error } = await this.supabase
+        .from('organizations')
+        .select(`
+          id,
+          name,
+          slug,
+          description,
+          logo_url,
+          website,
+          created_at,
+          member_count:organization_members(count),
+          social_account_count:social_accounts(count)
+        `)
+        .eq('id', organizationId)
+        .single();
+
+      if (error) {
+        console.error('Organization fetch error:', {
+          code: error.code,
+          message: error.message,
+          details: error.details
+        });
+        throw new Error(`Failed to fetch organization: ${error.message}`);
       }
-    });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to fetch organization');
+      if (!data) {
+        throw new Error('Organization not found');
+      }
+
+      // Get current user's role
+      const { data: memberData, error: memberError } = await this.supabase
+        .from('organization_members')
+        .select('role')
+        .eq('organization_id', organizationId)
+        .single();
+
+      if (memberError) {
+        console.error('Member role fetch error:', {
+          code: memberError.code,
+          message: memberError.message
+        });
+      }
+
+      const organizationDetails: OrganizationDetails = {
+        ...data,
+        current_user_role: memberData?.role || 'viewer',
+        member_count: (data.member_count as any)?.[0]?.count || 0,
+        social_account_count: (data.social_account_count as any)?.[0]?.count || 0,
+        role: memberData?.role || 'viewer',
+        joined_at: new Date().toISOString() // Add missing joined_at field
+      };
+
+      return { organization: organizationDetails };
+    } catch (error) {
+      console.error('Error in getOrganization:', {
+        error,
+        organizationId,
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+      throw error;
     }
-
-    return response.json();
   }
 
   /**
@@ -99,23 +246,63 @@ export class OrganizationsAPI {
     logo_url?: string;
     website?: string;
   }): Promise<{ organization: Organization }> {
-    const token = await this.getAuthToken();
-    
-    const response = await fetch(`${API_BASE_URL}/api/organizations`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    });
+    try {
+      const { data: { user }, error: authError } = await this.supabase.auth.getUser();
+      if (authError) throw new Error(`Authentication failed: ${authError.message}`);
+      if (!user) throw new Error('No authenticated user found');
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to create organization');
+      // Insert organization
+      const { data: org, error: orgError } = await this.supabase
+        .from('organizations')
+        .insert([data])
+        .select()
+        .single();
+
+      if (orgError) {
+        console.error('Organization creation error:', {
+          code: orgError.code,
+          message: orgError.message,
+          details: orgError.details
+        });
+        throw new Error(`Failed to create organization: ${orgError.message}`);
+      }
+
+      // Add creator as owner
+      const { error: memberError } = await this.supabase
+        .from('organization_members')
+        .insert([{
+          organization_id: org.id,
+          user_id: user.id,
+          role: 'owner'
+        }]);
+
+      if (memberError) {
+        console.error('Member creation error:', {
+          code: memberError.code,
+          message: memberError.message
+        });
+        // Clean up organization if member creation fails
+        await this.supabase
+          .from('organizations')
+          .delete()
+          .eq('id', org.id);
+        throw new Error(`Failed to set organization owner: ${memberError.message}`);
+      }
+
+      return {
+        organization: {
+          ...org,
+          role: 'owner',
+          joined_at: new Date().toISOString()
+        }
+      };
+    } catch (error) {
+      console.error('Error in createOrganization:', {
+        error,
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+      throw error;
     }
-
-    return response.json();
   }
 
   /**
@@ -128,42 +315,87 @@ export class OrganizationsAPI {
     logo_url: string;
     website: string;
   }>): Promise<{ organization: Organization }> {
-    const token = await this.getAuthToken();
-    
-    const response = await fetch(`${API_BASE_URL}/api/organizations/${organizationId}`, {
-      method: 'PATCH',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(updates)
-    });
+    try {
+      const { data, error } = await this.supabase
+        .from('organizations')
+        .update(updates)
+        .eq('id', organizationId)
+        .select(`
+          *,
+          organization_members!inner (
+            role,
+            joined_at
+          )
+        `)
+        .single();
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to update organization');
+      if (error) {
+        console.error('Organization update error:', {
+          code: error.code,
+          message: error.message,
+          details: error.details
+        });
+        throw new Error(`Failed to update organization: ${error.message}`);
+      }
+
+      return {
+        organization: {
+          ...data,
+          role: data.organization_members[0].role,
+          joined_at: data.organization_members[0].joined_at
+        }
+      };
+    } catch (error) {
+      console.error('Error in updateOrganization:', {
+        error,
+        organizationId,
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+      throw error;
     }
-
-    return response.json();
   }
 
   /**
    * Delete an organization (owner only)
    */
   async deleteOrganization(organizationId: string): Promise<void> {
-    const token = await this.getAuthToken();
-    
-    const response = await fetch(`${API_BASE_URL}/api/organizations/${organizationId}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
+    try {
+      // Check if user is owner
+      const { data: memberData, error: memberError } = await this.supabase
+        .from('organization_members')
+        .select('role')
+        .eq('organization_id', organizationId)
+        .single();
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to delete organization');
+      if (memberError) {
+        throw new Error('Failed to verify organization ownership');
+      }
+
+      if (memberData.role !== 'owner') {
+        throw new Error('Only organization owners can delete organizations');
+      }
+
+      // Delete organization (cascade will handle members)
+      const { error } = await this.supabase
+        .from('organizations')
+        .delete()
+        .eq('id', organizationId);
+
+      if (error) {
+        console.error('Organization deletion error:', {
+          code: error.code,
+          message: error.message,
+          details: error.details
+        });
+        throw new Error(`Failed to delete organization: ${error.message}`);
+      }
+    } catch (error) {
+      console.error('Error in deleteOrganization:', {
+        error,
+        organizationId,
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+      throw error;
     }
   }
 }

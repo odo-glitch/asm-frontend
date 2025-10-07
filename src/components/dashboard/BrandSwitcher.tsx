@@ -25,7 +25,10 @@ export function BrandSwitcher({ currentOrgId, onOrgChange }: BrandSwitcherProps)
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [currentOrg, setCurrentOrg] = useState<Organization | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const maxRetries = 3;
   const router = useRouter();
   const { toast } = useToast();
   const supabase = createClient();
@@ -33,22 +36,45 @@ export function BrandSwitcher({ currentOrgId, onOrgChange }: BrandSwitcherProps)
 
   const loadOrganizations = useCallback(async () => {
     try {
+      setError(false);
+      setLoading(true);
       const { organizations: orgs } = await orgsAPI.getUserOrganizations();
+      
+      if (!Array.isArray(orgs)) {
+        throw new Error('Invalid response format');
+      }
+      
       setOrganizations(orgs);
+      setRetryCount(0); // Reset retry count on success
     } catch (error) {
       console.error('Error loading organizations:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load organizations',
-        variant: 'destructive',
-      });
+      setError(true);
+      
+      // Only show toast if we've hit max retries
+      if (retryCount >= maxRetries - 1) {
+        toast({
+          title: 'Error',
+          description: 'Failed to load organizations',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setLoading(false);
     }
-  }, [orgsAPI, toast]);
+  }, [orgsAPI, toast, retryCount]);
 
   useEffect(() => {
-    setLoading(true);
+    if (error && retryCount < maxRetries) {
+      const timer = setTimeout(() => {
+        setRetryCount(prev => prev + 1);
+        loadOrganizations();
+      }, Math.min(1000 * Math.pow(2, retryCount), 5000)); // Exponential backoff with 5s max
+      
+      return () => clearTimeout(timer);
+    }
+  }, [error, retryCount, loadOrganizations]);
+
+  useEffect(() => {
     loadOrganizations();
   }, [loadOrganizations]);
 
@@ -64,6 +90,8 @@ export function BrandSwitcher({ currentOrgId, onOrgChange }: BrandSwitcherProps)
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const [hasInitialized, setHasInitialized] = useState(false);
+
   useEffect(() => {
     // Set current org when organizations are loaded
     if (organizations.length > 0) {
@@ -73,12 +101,15 @@ export function BrandSwitcher({ currentOrgId, onOrgChange }: BrandSwitcherProps)
       
       if (selected) {
         setCurrentOrg(selected);
-        if (!currentOrgId && onOrgChange) {
+        
+        // Only auto-select on initial load
+        if (!hasInitialized && !currentOrgId && onOrgChange) {
+          setHasInitialized(true);
           onOrgChange(selected.id);
         }
       }
     }
-  }, [organizations, currentOrgId]);
+  }, [organizations, currentOrgId, hasInitialized, onOrgChange]);
 
 
 
@@ -105,7 +136,7 @@ export function BrandSwitcher({ currentOrgId, onOrgChange }: BrandSwitcherProps)
     );
   }
 
-  if (organizations.length === 0) {
+  if (!loading && !error && organizations.length === 0) {
     return (
       <div className="px-4 py-3 border-b border-gray-200">
         <button

@@ -11,6 +11,7 @@ import { ArrowLeft, Building, Globe } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createClient } from '@/lib/supabase/client';
 import { OrganizationsAPI } from '@/lib/api/organizations';
+import { isAPIError } from '@/lib/api/errors';
 
 export default function NewOrganizationPage() {
   const [formData, setFormData] = useState({
@@ -90,10 +91,16 @@ export default function NewOrganizationPage() {
       // Store as selected org and redirect
       localStorage.setItem('selectedOrgId', organization.id);
       router.push('/dashboard');
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = isAPIError(error) 
+        ? error.error
+        : error instanceof Error
+          ? error.message
+          : 'Failed to create organization';
+          
       toast({
         title: 'Error',
-        description: error.message || 'Failed to create organization',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
