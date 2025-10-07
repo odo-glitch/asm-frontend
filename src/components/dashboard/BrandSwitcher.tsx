@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { ChevronDown, Plus, Building, Check } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
@@ -32,7 +32,7 @@ export function BrandSwitcher({ currentOrgId, onOrgChange }: BrandSwitcherProps)
   const router = useRouter();
   const { toast } = useToast();
   const supabase = createClient();
-  const orgsAPI = new OrganizationsAPI(supabase);
+  const orgsAPI = useMemo(() => new OrganizationsAPI(supabase), [supabase]);
 
   const loadOrganizations = useCallback(async () => {
     try {
