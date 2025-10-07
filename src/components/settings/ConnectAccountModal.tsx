@@ -9,6 +9,7 @@ interface ConnectAccountModalProps {
   onClose: () => void;
   existingAccounts: SocialAccount[];
   userId: string;
+  onSuccess?: () => void;
 }
 
 interface PlatformConfig {
