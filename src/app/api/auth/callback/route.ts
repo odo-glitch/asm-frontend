@@ -8,10 +8,11 @@ export async function GET(request: NextRequest) {
   const platform = requestUrl.searchParams.get('platform')
   const userId = requestUrl.searchParams.get('userId')
   const accessToken = requestUrl.searchParams.get('accessToken')
-  const refreshToken = requestUrl.searchParams.get('refreshToken')
-  const expiresIn = requestUrl.searchParams.get('expiresIn')
-  const accountName = requestUrl.searchParams.get('accountName')
-  const accountId = requestUrl.searchParams.get('accountId')
+  // These values are received but handled by backend
+  // const refreshToken = requestUrl.searchParams.get('refreshToken')
+  // const expiresIn = requestUrl.searchParams.get('expiresIn')
+  // const accountName = requestUrl.searchParams.get('accountName')
+  // const accountId = requestUrl.searchParams.get('accountId')
   const error = requestUrl.searchParams.get('error')
   
   // Supabase auth code (for login, not social connections)

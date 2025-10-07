@@ -219,8 +219,8 @@ export class OrganizationsAPI {
       const organizationDetails: OrganizationDetails = {
         ...data,
         current_user_role: memberData?.role || 'viewer',
-        member_count: (data.member_count as any)?.[0]?.count || 0,
-        social_account_count: (data.social_account_count as any)?.[0]?.count || 0,
+        member_count: (data.member_count as Array<{count: number}>)?.[0]?.count || 0,
+        social_account_count: (data.social_account_count as Array<{count: number}>)?.[0]?.count || 0,
         role: memberData?.role || 'viewer',
         joined_at: new Date().toISOString() // Add missing joined_at field
       };

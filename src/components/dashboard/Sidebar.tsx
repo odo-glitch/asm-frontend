@@ -21,7 +21,6 @@ import { SocialAccount } from '@/lib/social-accounts';
 import { BrandSwitcher } from './BrandSwitcher';
 
 interface SidebarProps {
-  accounts: SocialAccount[];
   onCreatePost?: () => void;
 }
 
@@ -37,7 +36,7 @@ const platformColors = {
   linkedin: 'text-blue-700',
 } as const;
 
-export function Sidebar({ accounts, onCreatePost }: SidebarProps) {
+export function Sidebar({ onCreatePost }: SidebarProps) {
   const pathname = usePathname();
   const [selectedOrgId, setSelectedOrgId] = useState<string>(() => 
     typeof window !== 'undefined' ? localStorage.getItem('selectedOrgId') || '' : ''

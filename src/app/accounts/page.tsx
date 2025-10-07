@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { OrganizationsAPI } from '@/lib/api/organizations';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,7 +35,7 @@ export default function AccountsPage() {
   const router = useRouter();
   const { toast } = useToast();
   const supabase = createClient();
-  const orgsAPI = new OrganizationsAPI(supabase);
+  const orgsAPI = useMemo(() => new OrganizationsAPI(supabase), [supabase]);
 
   const getCurrentUser = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -61,13 +61,13 @@ export default function AccountsPage() {
     } finally {
       setLoading(false);
     }
-  }, [supabase, toast]);
+  }, [orgsAPI, selectedOrg, toast]);
 
   const loadTeamMembers = useCallback(async (orgId: string) => {
     try {
       const { organization } = await orgsAPI.getOrganization(orgId);
       if (organization.members) {
-        setTeamMembers(organization.members.map(member => ({
+        setTeamMembers(organization.members.map((member: { role: string; email: string; user_id: string; joined_at: string }) => ({
           ...member,
           role: member.role as 'owner' | 'admin' | 'member' | 'viewer'
         })));

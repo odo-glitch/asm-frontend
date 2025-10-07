@@ -14,7 +14,7 @@ interface ConnectAccountModalProps {
 
 interface PlatformConfig {
   name: string;
-  icon: any;
+  icon: React.ElementType;
   bgColor: string;
   hoverColor: string;
 }
