@@ -22,6 +22,7 @@ import { BrandSwitcher } from './BrandSwitcher';
 
 interface SidebarProps {
   onCreatePost?: () => void;
+  accounts?: SocialAccount[];
 }
 
 const platformIcons = {
