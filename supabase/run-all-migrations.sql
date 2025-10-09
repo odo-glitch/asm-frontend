@@ -362,7 +362,7 @@ CREATE POLICY "Organization owners and super admins can update"
 
 CREATE POLICY "Any authenticated user can create an organization"
   ON organizations FOR INSERT
-  WITH CHECK (auth.uid() = created_by);
+  WITH CHECK (auth.uid() IS NOT NULL AND auth.uid() = created_by);
 
 -- User organizations policies
 CREATE POLICY "Users can view their organization memberships"
