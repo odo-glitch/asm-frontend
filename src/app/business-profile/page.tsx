@@ -70,7 +70,7 @@ export default function BusinessProfilePage() {
 
   // Connect Google Business Profile
   const handleConnectGoogle = () => {
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google-business`
+    window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/google-business`
   }
 
   useEffect(() => {
@@ -89,7 +89,7 @@ export default function BusinessProfilePage() {
         setAccounts(fetchedAccounts)
 
         // Fetch business profile data
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/business-profile`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/business-profile`, {
           credentials: 'include'
         })
         
@@ -140,7 +140,7 @@ export default function BusinessProfilePage() {
     if (!selectedReview || !replyText.trim()) return
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/business-profile/reviews/${selectedReview.id}/reply`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/business-profile/reviews/${selectedReview.id}/reply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
