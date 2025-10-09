@@ -218,6 +218,12 @@ CREATE TABLE IF NOT EXISTS super_admins (
 -- Enable RLS on super_admins
 ALTER TABLE super_admins ENABLE ROW LEVEL SECURITY;
 
+-- Grant permissions on public schema to authenticated users
+GRANT USAGE ON SCHEMA public TO authenticated;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO authenticated;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO authenticated;
+GRANT ALL ON ALL ROUTINES IN SCHEMA public TO authenticated;
+
 -- Create super admin helper functions
 CREATE OR REPLACE FUNCTION is_super_admin(user_uuid UUID)
 RETURNS BOOLEAN AS $$

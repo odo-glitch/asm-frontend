@@ -107,7 +107,7 @@ export class OrganizationsAPI {
 
       // Get organizations user is a member of
       const { data: orgs, error: orgsError, count } = await this.supabase
-        .from('organization_members')
+        .from('user_organizations')
         .select(`
           organization:organizations (
             id,
@@ -183,7 +183,7 @@ export class OrganizationsAPI {
           logo_url,
           website,
           created_at,
-          member_count:organization_members(count),
+          member_count:user_organizations(count),
           social_account_count:social_accounts(count)
         `)
         .eq('id', organizationId)
@@ -204,7 +204,7 @@ export class OrganizationsAPI {
 
       // Get current user's role
       const { data: memberData, error: memberError } = await this.supabase
-        .from('organization_members')
+        .from('user_organizations')
         .select('role')
         .eq('organization_id', organizationId)
         .single();
@@ -269,7 +269,7 @@ export class OrganizationsAPI {
 
       // Add creator as owner
       const { error: memberError } = await this.supabase
-        .from('organization_members')
+        .from('user_organizations')
         .insert([{
           organization_id: org.id,
           user_id: user.id,
@@ -322,7 +322,7 @@ export class OrganizationsAPI {
         .eq('id', organizationId)
         .select(`
           *,
-          organization_members!inner (
+          user_organizations!inner (
             role,
             joined_at
           )
