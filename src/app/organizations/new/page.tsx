@@ -73,6 +73,10 @@ export default function NewOrganizationPage() {
       return;
     }
 
+    if (loading) {
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -88,9 +92,11 @@ export default function NewOrganizationPage() {
         description: `Organization "${organization.name}" created successfully`,
       });
 
-      // Store as selected org and redirect
+      // Store as selected org and prevent immediate refresh
       localStorage.setItem('selectedOrgId', organization.id);
-      router.push('/dashboard');
+      
+      // Use replace instead of push to prevent back navigation
+      router.replace('/dashboard');
     } catch (error: unknown) {
       const errorMessage = isAPIError(error) 
         ? error.error

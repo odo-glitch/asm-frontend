@@ -361,14 +361,7 @@ CREATE POLICY "Any authenticated user can create an organization"
 -- User organizations policies
 CREATE POLICY "Users can view their organization memberships"
   ON user_organizations FOR SELECT
-  USING (user_id = auth.uid() OR
-    EXISTS (
-      SELECT 1 FROM user_organizations uo2
-      WHERE uo2.organization_id = user_organizations.organization_id
-      AND uo2.user_id = auth.uid()
-      AND uo2.role IN ('owner', 'admin')
-    )
-  );
+  USING (user_id = auth.uid());
 
 CREATE POLICY "Organization owners and admins can manage members"
   ON user_organizations FOR INSERT
