@@ -267,27 +267,8 @@ export class OrganizationsAPI {
         throw new Error(`Failed to create organization: ${orgError.message}`);
       }
 
-      // Add creator as owner
-      const { error: memberError } = await this.supabase
-        .from('user_organizations')
-        .insert([{
-          organization_id: org.id,
-          user_id: user.id,
-          role: 'owner'
-        }]);
-
-      if (memberError) {
-        console.error('Member creation error:', {
-          code: memberError.code,
-          message: memberError.message
-        });
-        // Clean up organization if member creation fails
-        await this.supabase
-          .from('organizations')
-          .delete()
-          .eq('id', org.id);
-        throw new Error(`Failed to set organization owner: ${memberError.message}`);
-      }
+      // The database trigger automatically adds the creator as owner,
+      // so we don't need to manually insert into user_organizations
 
       return {
         organization: {

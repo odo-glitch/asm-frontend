@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS organizations (
   logo_url TEXT,
   website TEXT,
   settings JSONB DEFAULT '{}',
-  created_by UUID REFERENCES auth.users(id) NOT NULL,
+  created_by UUID REFERENCES auth.users(id) DEFAULT auth.uid() NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -337,46 +337,57 @@ DROP POLICY IF EXISTS "Users can manage their own folders" ON content_folders;
 
 -- Create RLS policies
 -- Organizations policies
-CREATE POLICY "Users can view organizations"
+-- First, drop any existing policies
+DROP POLICY IF EXISTS "Users can view organizations" ON organizations;
+DROP POLICY IF EXISTS "Organization owners and super admins can update" ON organizations;
+DROP POLICY IF EXISTS "Any authenticated user can create an organization" ON organizations;
+DROP POLICY IF EXISTS "Super admins can manage organizations" ON organizations;
+
+-- Then create new policies with simplified checks
+CREATE POLICY "Allow organization creation"
+  ON organizations FOR INSERT
+  WITH CHECK (auth.uid() = created_by);
+
+CREATE POLICY "Allow organization viewing"
   ON organizations FOR SELECT
   USING (
-    is_current_user_super_admin() OR
+    created_by = auth.uid() OR
     EXISTS (
       SELECT 1 FROM user_organizations
-      WHERE user_organizations.organization_id = organizations.id
+      WHERE user_organizations.organization_id = id
       AND user_organizations.user_id = auth.uid()
     )
   );
 
-CREATE POLICY "Organization owners and super admins can update"
+CREATE POLICY "Allow organization updates"
   ON organizations FOR UPDATE
-  USING (
-    is_current_user_super_admin() OR
-    EXISTS (
-      SELECT 1 FROM user_organizations
-      WHERE user_organizations.organization_id = organizations.id
-      AND user_organizations.user_id = auth.uid()
-      AND user_organizations.role = 'owner'
-    )
-  );
+  USING (created_by = auth.uid());
 
-CREATE POLICY "Any authenticated user can create an organization"
-  ON organizations FOR INSERT
-  WITH CHECK (auth.uid() IS NOT NULL AND auth.uid() = created_by);
+CREATE POLICY "Allow organization deletion"
+  ON organizations FOR DELETE
+  USING (created_by = auth.uid());
 
 -- User organizations policies
 CREATE POLICY "Users can view their organization memberships"
   ON user_organizations FOR SELECT
   USING (user_id = auth.uid());
 
-CREATE POLICY "Organization owners and admins can manage members"
+CREATE POLICY "Users can manage organization memberships"
   ON user_organizations FOR INSERT
   WITH CHECK (
+    -- Allow users to be added if they're the creator of the organization
     EXISTS (
-      SELECT 1 FROM user_organizations
-      WHERE user_organizations.organization_id = user_organizations.organization_id
-      AND user_organizations.user_id = auth.uid()
-      AND user_organizations.role IN ('owner', 'admin')
+      SELECT 1 FROM organizations o
+      WHERE o.id = organization_id
+      AND o.created_by = user_id
+    )
+    OR
+    -- Allow organization owners/admins to add members
+    EXISTS (
+      SELECT 1 FROM user_organizations existing
+      WHERE existing.organization_id = organization_id
+      AND existing.user_id = auth.uid()
+      AND existing.role IN ('owner', 'admin')
     )
   );
 
@@ -701,11 +712,14 @@ CREATE POLICY "Users can manage their own folders"
 CREATE OR REPLACE FUNCTION add_creator_as_owner()
 RETURNS TRIGGER AS $$
 BEGIN
+  -- Add the creator as owner (with ON CONFLICT to handle any race conditions)
   INSERT INTO user_organizations (user_id, organization_id, role, invitation_accepted)
-  VALUES (NEW.created_by, NEW.id, 'owner', true);
+  VALUES (NEW.created_by, NEW.id, 'owner', true)
+  ON CONFLICT (user_id, organization_id) DO NOTHING;
+  
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Function to handle invitation acceptance
 CREATE OR REPLACE FUNCTION accept_organization_invitation(invitation_token TEXT)
