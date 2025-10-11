@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { GoogleBusinessSelector } from '@/components/business-profile/GoogleBusinessSelector'
 import { createClient } from '@/lib/supabase/client'
 import { redirect } from 'next/navigation'
 import { Sidebar } from '@/components/dashboard/Sidebar'
@@ -68,10 +69,20 @@ export default function BusinessProfilePage() {
   const [replyText, setReplyText] = useState('')
   const [isGeneratingAI, setIsGeneratingAI] = useState(false)
 
+  const [showProfileSelector, setShowProfileSelector] = useState(false)
+
   // Connect Google Business Profile
   const handleConnectGoogle = () => {
     window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/google-business`
   }
+
+  // Handle OAuth callback success
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.has('accountName') && params.has('userId')) {
+      setShowProfileSelector(true)
+    }
+  }, [])
 
   useEffect(() => {
     async function loadData() {
@@ -516,6 +527,19 @@ export default function BusinessProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* Google Business Profile Selector */}
+      {user && (
+        <GoogleBusinessSelector
+          userId={user.id}
+          open={showProfileSelector}
+          onOpenChange={setShowProfileSelector}
+          onComplete={() => {
+            setShowProfileSelector(false)
+            window.location.href = '/business-profile' // Refresh the page to show the connected profile
+          }}
+        />
+      )}
     </div>
   )
 }
