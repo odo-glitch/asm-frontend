@@ -70,7 +70,7 @@ export default function BusinessProfilePage() {
 
   // Connect Google Business Profile
   const handleConnectGoogle = () => {
-    window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/google-business`
+    window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/google-business`
   }
 
   useEffect(() => {
