@@ -52,7 +52,7 @@ export function GoogleBusinessSelector({
   const fetchProfiles = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/google-business/profiles/${userId}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/google-business/profiles/${userId}`);
       if (!response.ok) throw new Error('Failed to fetch profiles');
       
       const data = await response.json();
@@ -76,7 +76,7 @@ export function GoogleBusinessSelector({
     if (!profile) return;
 
     try {
-      const response = await fetch(`/api/google-business/select-profile/${userId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/google-business/select-profile/${userId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
