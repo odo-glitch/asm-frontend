@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -43,13 +43,7 @@ export function GoogleBusinessSelector({
   const [selectedProfile, setSelectedProfile] = useState<string>('');
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (open) {
-      fetchProfiles();
-    }
-  }, [open]);
-
-  const fetchProfiles = async () => {
+  const fetchProfiles = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/google-business/profiles/${userId}`);
@@ -62,17 +56,24 @@ export function GoogleBusinessSelector({
       
       const data = await response.json();
       setProfiles(data.profiles);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error fetching profiles:', error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to fetch business profiles. Please try again.";
       toast({
         title: "Error",
-        description: error.message || "Failed to fetch business profiles. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId, toast]);
+
+  useEffect(() => {
+    if (open) {
+      fetchProfiles();
+    }
+  }, [open, fetchProfiles]);
 
   const handleConfirmSelection = async () => {
     if (!selectedProfile) return;
