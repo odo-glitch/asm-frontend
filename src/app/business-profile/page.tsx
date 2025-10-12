@@ -73,7 +73,12 @@ export default function BusinessProfilePage() {
 
   // Connect Google Business Profile
   const handleConnectGoogle = () => {
-    window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/google-business`
+    if (!user?.id) return
+    const params = new URLSearchParams({
+      userId: user.id,
+      redirect: `${window.location.origin}/business-profile`
+    })
+    window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/google-business?${params}`
   }
 
   // Handle OAuth callback success
@@ -100,7 +105,7 @@ export default function BusinessProfilePage() {
         setAccounts(fetchedAccounts)
 
         // Fetch business profile data
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/business-profile`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/business-profile?userId=${user.id}`, {
           credentials: 'include'
         })
         
@@ -534,9 +539,10 @@ export default function BusinessProfilePage() {
           userId={user.id}
           open={showProfileSelector}
           onOpenChange={setShowProfileSelector}
-          onComplete={() => {
+          onComplete={async () => {
             setShowProfileSelector(false)
-            window.location.href = '/business-profile' // Refresh the page to show the connected profile
+            // Reload the page to fetch updated data
+            window.location.reload()
           }}
         />
       )}
