@@ -53,15 +53,20 @@ export function GoogleBusinessSelector({
     try {
       setLoading(true);
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/google-business/profiles/${userId}`);
-      if (!response.ok) throw new Error('Failed to fetch profiles');
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Failed to fetch profiles:', errorData);
+        throw new Error(errorData.details || errorData.error || 'Failed to fetch profiles');
+      }
       
       const data = await response.json();
       setProfiles(data.profiles);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching profiles:', error);
       toast({
         title: "Error",
-        description: "Failed to fetch business profiles. Please try again.",
+        description: error.message || "Failed to fetch business profiles. Please try again.",
         variant: "destructive",
       });
     } finally {
