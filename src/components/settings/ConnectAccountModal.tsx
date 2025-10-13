@@ -61,9 +61,8 @@ export function ConnectAccountModal({ isOpen, onClose, existingAccounts, userId,
     try {
       // Redirect to backend OAuth endpoint
       const params = new URLSearchParams({
-        platform: platformKey,
         userId,
-        redirect: `${window.location.origin}/api/auth/callback`
+        redirect: `${window.location.origin}/settings`
       });
       
       // Use backend OAuth flow for social media posting

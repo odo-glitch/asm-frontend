@@ -17,16 +17,18 @@ export function SettingsContent({ userEmail, userId }: SettingsContentProps) {
   const searchParams = useSearchParams();
   
   // Check for success/error messages from OAuth callback
-  const connected = searchParams.get('connected');
+  const success = searchParams.get('success');
+  const platform = searchParams.get('platform');
   const error = searchParams.get('error');
 
   useEffect(() => {
     loadAccounts();
     
     // Show success message if account was just connected
-    if (connected) {
-      console.log(`Successfully connected ${connected} account`);
-      // You could show a toast notification here
+    if (success && platform) {
+      console.log(`Successfully connected ${platform} account`);
+      // Reload accounts after successful connection
+      setTimeout(() => loadAccounts(), 1000);
     }
     
     // Show error message if connection failed
@@ -34,7 +36,7 @@ export function SettingsContent({ userEmail, userId }: SettingsContentProps) {
       console.error(`Failed to connect account: ${error}`);
       // You could show an error toast here
     }
-  }, [connected, error]);
+  }, [success, platform, error]);
 
   async function loadAccounts() {
     setIsLoading(true);
