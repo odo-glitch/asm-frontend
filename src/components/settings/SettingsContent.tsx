@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { Sidebar } from '@/components/dashboard/Sidebar';
 import { SocialAccount, fetchUserSocialAccounts } from '@/lib/social-accounts';
 import { ConnectedAccountsSection } from './ConnectedAccountsSection';
+import { FacebookPageSelector } from './FacebookPageSelector';
 
 interface SettingsContentProps {
   userEmail: string;
@@ -14,6 +15,7 @@ interface SettingsContentProps {
 export function SettingsContent({ userEmail, userId }: SettingsContentProps) {
   const [accounts, setAccounts] = useState<SocialAccount[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showFacebookPageSelector, setShowFacebookPageSelector] = useState(false);
   const searchParams = useSearchParams();
   
   // Check for success/error messages from OAuth callback
@@ -27,6 +29,14 @@ export function SettingsContent({ userEmail, userId }: SettingsContentProps) {
     // Show success message if account was just connected
     if (success && platform) {
       console.log(`Successfully connected ${platform} account`);
+      
+      // Show Facebook page selector if Facebook was just connected
+      if (platform === 'facebook') {
+        setTimeout(() => {
+          setShowFacebookPageSelector(true);
+        }, 500);
+      }
+      
       // Reload accounts after successful connection
       setTimeout(() => loadAccounts(), 1000);
     }
@@ -77,6 +87,14 @@ export function SettingsContent({ userEmail, userId }: SettingsContentProps) {
           </main>
         </div>
       </div>
+
+      {/* Facebook Page Selector Modal */}
+      <FacebookPageSelector
+        open={showFacebookPageSelector}
+        onOpenChange={setShowFacebookPageSelector}
+        userId={userId}
+        onPageSelected={loadAccounts}
+      />
     </>
   );
 }
