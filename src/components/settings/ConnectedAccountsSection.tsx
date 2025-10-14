@@ -5,6 +5,7 @@ import { Twitter, Facebook, Linkedin, Instagram, Plus, Trash2, RefreshCw } from 
 import { SocialAccount } from '@/lib/social-accounts';
 import { createClient } from '@/lib/supabase/client';
 import { ConnectAccountModal } from './ConnectAccountModal';
+import { FacebookPageSelector } from './FacebookPageSelector';
 
 interface ConnectedAccountsSectionProps {
   accounts: SocialAccount[];
@@ -29,6 +30,7 @@ const platformColors = {
 export function ConnectedAccountsSection({ accounts, userId, onAccountsChange }: ConnectedAccountsSectionProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [showFacebookPageSelector, setShowFacebookPageSelector] = useState(false);
   
   const getPlatformIcon = (platform: string) => {
     const Icon = platformIcons[platform as keyof typeof platformIcons] || Twitter;
@@ -56,6 +58,12 @@ export function ConnectedAccountsSection({ accounts, userId, onAccountsChange }:
       alert('Failed to disconnect account');
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const handleSelectPage = (platform: string) => {
+    if (platform === 'facebook') {
+      setShowFacebookPageSelector(true);
     }
   };
 
@@ -110,6 +118,15 @@ export function ConnectedAccountsSection({ accounts, userId, onAccountsChange }:
                   </div>
                   
                   <div className="flex items-center gap-2">
+                    {account.platform === 'facebook' && (
+                      <button
+                        onClick={() => handleSelectPage(account.platform)}
+                        className="px-3 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100"
+                        title="Select a different page"
+                      >
+                        Select Page
+                      </button>
+                    )}
                     <button
                       onClick={() => handleRefreshToken(account)}
                       className="p-2 text-gray-400 hover:text-gray-600"
@@ -139,6 +156,13 @@ export function ConnectedAccountsSection({ accounts, userId, onAccountsChange }:
         existingAccounts={accounts}
         userId={userId}
         onSuccess={onAccountsChange}
+      />
+
+      <FacebookPageSelector
+        open={showFacebookPageSelector}
+        onOpenChange={setShowFacebookPageSelector}
+        userId={userId}
+        onPageSelected={onAccountsChange}
       />
     </>
   );

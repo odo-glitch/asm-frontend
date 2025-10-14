@@ -102,12 +102,15 @@ export function ConnectAccountModal({ isOpen, onClose, existingAccounts, userId,
             const Icon = platform.icon;
             const isConnected = connectedPlatforms.includes(key);
             const isLoading = loading === key;
+            // Allow reconnecting Facebook to change pages
+            const canReconnect = key === 'facebook';
+            const isDisabled = (isConnected && !canReconnect) || isLoading;
 
             return (
               <button
                 key={key}
                 onClick={() => handleConnect(key)}
-                disabled={isConnected || isLoading}
+                disabled={isDisabled}
                 className={`
                   w-full flex items-center gap-3 px-4 py-3 
                   text-white font-medium rounded-lg
@@ -121,12 +124,12 @@ export function ConnectAccountModal({ isOpen, onClose, existingAccounts, userId,
                   {isLoading ? (
                     'Connecting...'
                   ) : isConnected ? (
-                    `${platform.name} Already Connected`
+                    canReconnect ? `Reconnect ${platform.name}` : `${platform.name} Already Connected`
                   ) : (
                     `Connect ${platform.name}`
                   )}
                 </span>
-                {isConnected && <span className="text-lg">✓</span>}
+                {isConnected && !canReconnect && <span className="text-lg">✓</span>}
               </button>
             );
           })}
