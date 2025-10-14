@@ -224,9 +224,12 @@ export default function InboxPage() {
         const fetchedAccounts = await fetchUserSocialAccounts()
         setAccounts(fetchedAccounts)
         
-        // Fetch real Facebook conversations first
+        // Fetch conversations from both Facebook and Instagram
+        const allConversations: Conversation[] = []
+        
+        // Try Facebook Messenger
         try {
-          console.log('Fetching Facebook conversations for user:', user.id)
+          console.log('Fetching Facebook Messenger conversations for user:', user.id)
           console.log('Backend URL:', process.env.NEXT_PUBLIC_BACKEND_URL)
           
           const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/facebook/conversations/${user.id}`)
@@ -239,29 +242,81 @@ export default function InboxPage() {
             
             if (data.conversations && data.conversations.length > 0) {
               console.log('✅ Found', data.conversations.length, 'Facebook conversations')
-              setFacebookStatus('success')
-              setConversations(data.conversations)
-              setSelectedConversation(data.conversations[0])
-              
-              // Fetch messages for first conversation
-              const messagesResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/facebook/conversations/${user.id}/${data.conversations[0].id}/messages`)
-              if (messagesResponse.ok) {
-                const messagesData = await messagesResponse.json()
-                setSelectedMessages(messagesData.messages)
-              }
-              return // Exit early if we found Facebook conversations
+              allConversations.push(...data.conversations)
             } else {
-              console.log('⚠️ No Facebook conversations found in response')
-              setFacebookStatus('no_messages')
+              console.log('⚠️ No Facebook conversations found')
             }
           } else {
             const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
             console.error('❌ Facebook API error:', response.status, errorData)
-            setFacebookStatus(`error: ${errorData.error || 'Failed to fetch'}`)
+            setFacebookStatus(`FB: ${errorData.error || 'Permission required'}`)
           }
         } catch (fbError) {
           console.error('❌ Facebook API exception:', fbError)
-          setFacebookStatus(`exception: ${fbError instanceof Error ? fbError.message : 'Unknown'}`)
+          setFacebookStatus(`FB: ${fbError instanceof Error ? fbError.message : 'Connection error'}`)
+        }
+
+        // Try Instagram
+        try {
+          console.log('Fetching Instagram conversations for user:', user.id)
+          
+          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/instagram/conversations/${user.id}`)
+          
+          console.log('Instagram API response status:', response.status)
+          
+          if (response.ok) {
+            const data = await response.json()
+            console.log('Instagram API response data:', data)
+            
+            if (data.conversations && data.conversations.length > 0) {
+              console.log('✅ Found', data.conversations.length, 'Instagram conversations')
+              allConversations.push(...data.conversations)
+            } else {
+              console.log('⚠️ No Instagram conversations found')
+            }
+          } else {
+            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+            console.error('❌ Instagram API error:', response.status, errorData)
+            const currentStatus = facebookStatus || ''
+            setFacebookStatus(currentStatus ? `${currentStatus} | IG: ${errorData.error}` : `IG: ${errorData.error}`)
+          }
+        } catch (igError) {
+          console.error('❌ Instagram API exception:', igError)
+          const currentStatus = facebookStatus || ''
+          const igMsg = igError instanceof Error ? igError.message : 'Connection error'
+          setFacebookStatus(currentStatus ? `${currentStatus} | IG: ${igMsg}` : `IG: ${igMsg}`)
+        }
+
+        // If we have conversations from either platform, use them
+        if (allConversations.length > 0) {
+          console.log('✅ Total conversations found:', allConversations.length)
+          
+          // Sort by last message time (most recent first)
+          allConversations.sort((a, b) => 
+            new Date(b.last_message_time).getTime() - new Date(a.last_message_time).getTime()
+          )
+          
+          setConversations(allConversations)
+          setSelectedConversation(allConversations[0])
+          
+          // Fetch messages for first conversation
+          const firstConv = allConversations[0]
+          const apiEndpoint = firstConv.platform === 'facebook' ? 'facebook' : 'instagram'
+          const messagesResponse = await fetch(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/${apiEndpoint}/conversations/${user.id}/${firstConv.id}/messages`
+          )
+          if (messagesResponse.ok) {
+            const messagesData = await messagesResponse.json()
+            setSelectedMessages(messagesData.messages)
+          }
+          
+          setFacebookStatus('success')
+          return // Exit early if we found conversations
+        } else {
+          console.log('⚠️ No conversations found from any platform')
+          if (!facebookStatus) {
+            setFacebookStatus('no_messages')
+          }
         }
 
         // If no Facebook messages, try database
@@ -339,17 +394,20 @@ export default function InboxPage() {
   const handleConversationSelect = async (conversation: Conversation) => {
     setSelectedConversation(conversation)
     
-    // If it's a Facebook conversation, fetch from Facebook API
-    if (conversation.platform === 'facebook' && user) {
+    // If it's a Facebook or Instagram conversation, fetch from appropriate API
+    if ((conversation.platform === 'facebook' || conversation.platform === 'instagram') && user) {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/facebook/conversations/${user.id}/${conversation.id}/messages`)
+        const apiEndpoint = conversation.platform === 'facebook' ? 'facebook' : 'instagram'
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/${apiEndpoint}/conversations/${user.id}/${conversation.id}/messages`
+        )
         if (response.ok) {
           const data = await response.json()
           setSelectedMessages(data.messages)
           return
         }
       } catch (error) {
-        console.error('Failed to fetch Facebook messages:', error)
+        console.error(`Failed to fetch ${conversation.platform} messages:`, error)
       }
     }
     
