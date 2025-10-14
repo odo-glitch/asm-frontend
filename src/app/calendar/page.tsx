@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { AppLayout } from '@/components/layout/AppLayout'
 import { Sidebar } from '@/components/dashboard/Sidebar'
 import { CreatePostModal } from '@/components/dashboard/CreatePostModal'
 import { Card } from '@/components/ui/card'
@@ -310,7 +311,7 @@ export default function CalendarPage() {
   const monthName = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
 
   return (
-    <>
+    <AppLayout>
       <Sidebar 
         accounts={accounts} 
         onCreatePost={() => setIsModalOpen(true)}
@@ -462,6 +463,6 @@ export default function CalendarPage() {
         accounts={accounts}
         isGenerating={isGenerating}
       />
-    </>
+    </AppLayout>
   )
 }

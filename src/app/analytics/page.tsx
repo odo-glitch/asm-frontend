@@ -1,28 +1,32 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { AppLayout } from '@/components/layout/AppLayout'
 import { Sidebar } from '@/components/dashboard/Sidebar'
-import { CreatePostModal } from '@/components/dashboard/CreatePostModal'
 import { Card } from '@/components/ui/card'
 import { SocialAccount, fetchUserSocialAccounts } from '@/lib/social-accounts'
-import { fetchAnalyticsData } from '@/lib/analytics'
 import { 
+  TrendingUp, 
+  TrendingDown, 
   Users, 
   Eye, 
-  MessageSquare,
+  ThumbsUp, 
+  MessageCircle,
   FileText,
-  Facebook,
+  Plus,
   Twitter,
+  Facebook,
   Linkedin,
-  Instagram,
-  ArrowUpRight,
-  ArrowDownRight
+  Instagram 
 } from 'lucide-react'
 import {
   LineChart,
   Line,
   BarChart,
   Bar,
+  PieChart,
+  Pie,
+  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -197,7 +201,7 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <>
+    <AppLayout>
       <Sidebar 
         accounts={accounts} 
         onCreatePost={() => setIsModalOpen(true)}
@@ -417,6 +421,6 @@ export default function AnalyticsPage() {
         onClose={() => setIsModalOpen(false)}
         accounts={accounts}
       />
-    </>
+    </AppLayout>
   )
 }

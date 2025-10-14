@@ -14,7 +14,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <nav className="bg-white shadow">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <Logo className="h-16 w-auto text-[#61497e]" />
@@ -33,7 +33,9 @@ export default async function DashboardPage() {
         </div>
       </nav>
       
-      <DashboardContent userEmail={user.email!} />
+      <div className="pt-16">
+        <DashboardContent userEmail={user.email!} />
+      </div>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { SettingsContent } from '@/components/settings/SettingsContent'
+import Logo from '@/components/Logo'
 
 export default async function SettingsPage() {
   const supabase = await createClient()
@@ -13,12 +14,10 @@ export default async function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <nav className="bg-white shadow">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <h1 className="text-xl font-semibold">My App</h1>
-            </div>
+            <Logo className="h-16 w-auto text-[#61497e]" />
             <div className="flex items-center space-x-4">
               <span className="text-gray-700">{user.email}</span>
               <form action="/auth/signout" method="post">
@@ -34,7 +33,9 @@ export default async function SettingsPage() {
         </div>
       </nav>
       
-      <SettingsContent userEmail={user.email!} userId={user.id} />
+      <div className="pt-16">
+        <SettingsContent userEmail={user.email!} userId={user.id} />
+      </div>
     </div>
   )
 }
