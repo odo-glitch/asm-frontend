@@ -3,30 +3,26 @@
 import { useState, useEffect } from 'react'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { Sidebar } from '@/components/dashboard/Sidebar'
+import { CreatePostModal } from '@/components/dashboard/CreatePostModal'
 import { Card } from '@/components/ui/card'
 import { SocialAccount, fetchUserSocialAccounts } from '@/lib/social-accounts'
 import { 
-  TrendingUp, 
-  TrendingDown, 
   Users, 
   Eye, 
-  ThumbsUp, 
-  MessageCircle,
+  MessageSquare,
   FileText,
-  Plus,
+  ArrowUpRight,
+  ArrowDownRight,
   Twitter,
   Facebook,
   Linkedin,
   Instagram 
-} from 'lucide-react'
+} from 'lucide-react';
 import {
   LineChart,
   Line,
   BarChart,
   Bar,
-  PieChart,
-  Pie,
-  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -122,19 +118,7 @@ export default function AnalyticsPage() {
 
       setIsLoading(true)
       try {
-        // Try to fetch real analytics data first
-        try {
-          const realData = await fetchAnalyticsData(timeframe)
-          if (realData.engagementData.length > 0 || realData.topPosts.length > 0) {
-            setAnalyticsData(realData)
-            setIsLoading(false)
-            return
-          }
-        } catch (error) {
-          console.log('No real analytics data available, using generated data')
-        }
-        
-        // Generate analytics based on connected accounts if no real data
+        // Generate analytics based on connected accounts
         if (accounts.length > 0) {
           // Generate engagement data for the last 30 days
           const days = timeframe === '7days' ? 7 : timeframe === '30days' ? 30 : 90
