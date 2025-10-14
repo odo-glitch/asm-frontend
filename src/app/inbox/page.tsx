@@ -223,7 +223,32 @@ export default function InboxPage() {
         const fetchedAccounts = await fetchUserSocialAccounts()
         setAccounts(fetchedAccounts)
         
-        // Fetch conversations from database
+        // Fetch real Facebook conversations first
+        try {
+          console.log('Fetching Facebook conversations for user:', user.id)
+          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/facebook/conversations/${user.id}`)
+          
+          if (response.ok) {
+            const data = await response.json()
+            if (data.conversations && data.conversations.length > 0) {
+              console.log('Found', data.conversations.length, 'Facebook conversations')
+              setConversations(data.conversations)
+              setSelectedConversation(data.conversations[0])
+              
+              // Fetch messages for first conversation
+              const messagesResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/facebook/conversations/${user.id}/${data.conversations[0].id}/messages`)
+              if (messagesResponse.ok) {
+                const messagesData = await messagesResponse.json()
+                setSelectedMessages(messagesData.messages)
+              }
+              return // Exit early if we found Facebook conversations
+            }
+          }
+        } catch (fbError) {
+          console.log('No Facebook conversations or error fetching:', fbError)
+        }
+
+        // If no Facebook messages, try database
         try {
           const conversations = await fetchConversations()
           if (conversations.length > 0) {
@@ -243,10 +268,7 @@ export default function InboxPage() {
           
           // Check if it's a "relation does not exist" error
           if (error instanceof Error && error.message?.includes('relation') && error.message?.includes('does not exist')) {
-            setDbError('Database tables not found. Please run migrations to enable message storage.')
-            console.warn('📋 Database tables not found. Please run the migration:')
-            console.warn('📋 npx supabase migration up')
-            console.warn('📋 Or apply the SQL from: supabase/migrations/003_create_messages_tables.sql')
+            setDbError('Database tables not found. Showing demo data.')
           }
           
           // Fallback to mock data
@@ -301,7 +323,21 @@ export default function InboxPage() {
   const handleConversationSelect = async (conversation: Conversation) => {
     setSelectedConversation(conversation)
     
-    // Fetch messages for this conversation
+    // If it's a Facebook conversation, fetch from Facebook API
+    if (conversation.platform === 'facebook' && user) {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/facebook/conversations/${user.id}/${conversation.id}/messages`)
+        if (response.ok) {
+          const data = await response.json()
+          setSelectedMessages(data.messages)
+          return
+        }
+      } catch (error) {
+        console.error('Failed to fetch Facebook messages:', error)
+      }
+    }
+    
+    // Fallback to database messages
     try {
       const messages = await fetchMessages(conversation.id)
       setSelectedMessages(messages)
