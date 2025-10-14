@@ -207,6 +207,7 @@ export default function InboxPage() {
   const [replyText, setReplyText] = useState('')
   const [sendingMessage, setSendingMessage] = useState(false)
   const [dbError, setDbError] = useState<string | null>(null)
+  const [facebookStatus, setFacebookStatus] = useState<string | null>(null)
 
   useEffect(() => {
     async function loadData() {
@@ -226,12 +227,19 @@ export default function InboxPage() {
         // Fetch real Facebook conversations first
         try {
           console.log('Fetching Facebook conversations for user:', user.id)
+          console.log('Backend URL:', process.env.NEXT_PUBLIC_BACKEND_URL)
+          
           const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/facebook/conversations/${user.id}`)
+          
+          console.log('Facebook API response status:', response.status)
           
           if (response.ok) {
             const data = await response.json()
+            console.log('Facebook API response data:', data)
+            
             if (data.conversations && data.conversations.length > 0) {
-              console.log('Found', data.conversations.length, 'Facebook conversations')
+              console.log('✅ Found', data.conversations.length, 'Facebook conversations')
+              setFacebookStatus('success')
               setConversations(data.conversations)
               setSelectedConversation(data.conversations[0])
               
@@ -242,10 +250,18 @@ export default function InboxPage() {
                 setSelectedMessages(messagesData.messages)
               }
               return // Exit early if we found Facebook conversations
+            } else {
+              console.log('⚠️ No Facebook conversations found in response')
+              setFacebookStatus('no_messages')
             }
+          } else {
+            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+            console.error('❌ Facebook API error:', response.status, errorData)
+            setFacebookStatus(`error: ${errorData.error || 'Failed to fetch'}`)
           }
         } catch (fbError) {
-          console.log('No Facebook conversations or error fetching:', fbError)
+          console.error('❌ Facebook API exception:', fbError)
+          setFacebookStatus(`exception: ${fbError instanceof Error ? fbError.message : 'Unknown'}`)
         }
 
         // If no Facebook messages, try database
@@ -396,6 +412,26 @@ export default function InboxPage() {
 
         {/* Main Content - Three Panel Layout */}
         <div className="flex-1 ml-64 flex flex-col">
+          {/* Facebook Status Banner */}
+          {facebookStatus && facebookStatus !== 'success' && (
+            <div className="bg-blue-50 border-b border-blue-200 px-4 py-3">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm text-blue-700">
+                    {facebookStatus === 'no_messages' && 'No Facebook messages found. Your page may not have received any messages yet, or permissions may need approval.'}
+                    {facebookStatus.startsWith('error') && `Facebook API Error: ${facebookStatus.split(': ')[1]}. Check browser console for details.`}
+                    {facebookStatus.startsWith('exception') && `Connection error: ${facebookStatus.split(': ')[1]}. Showing demo data.`}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          
           {/* Database Error Banner */}
           {dbError && (
             <div className="bg-yellow-50 border-b border-yellow-200 px-4 py-3">
@@ -408,9 +444,6 @@ export default function InboxPage() {
                 <div className="ml-3">
                   <p className="text-sm text-yellow-700">
                     {dbError} Currently showing demo data.
-                    <a href="/docs/inbox-setup.md" className="ml-1 font-medium underline text-yellow-700 hover:text-yellow-600">
-                      View setup guide
-                    </a>
                   </p>
                 </div>
               </div>
