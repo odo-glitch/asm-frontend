@@ -470,22 +470,34 @@ export default function InboxPage() {
 
         {/* Main Content - Three Panel Layout */}
         <div className="flex-1 ml-64 flex flex-col">
-          {/* Facebook Status Banner */}
+          {/* Connection Status Banner */}
           {facebookStatus && facebookStatus !== 'success' && (
             <div className="bg-blue-50 border-b border-blue-200 px-4 py-3">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                  </svg>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-blue-700">
+                      {facebookStatus === 'no_messages' && 'No messages found. Connect your Instagram or Facebook page to start receiving messages.'}
+                      {facebookStatus.includes('not found') && 'No Instagram or Facebook accounts connected yet.'}
+                      {facebookStatus.includes('FB:') && facebookStatus.includes('IG:') && (
+                        <>Facebook: {facebookStatus.split('|')[0].replace('FB:', '').trim()} | Instagram: {facebookStatus.split('|')[1].replace('IG:', '').trim()}</>
+                      )}
+                      {facebookStatus.includes('Permission') && ' Facebook needs pages_messaging permission (via Messenger product). Instagram needs instagram_manage_messages permission.'}
+                      {!facebookStatus.includes('not found') && !facebookStatus.includes('no_messages') && !facebookStatus.includes('Permission') && !facebookStatus.includes('FB:') && facebookStatus}
+                    </p>
+                  </div>
                 </div>
-                <div className="ml-3">
-                  <p className="text-sm text-blue-700">
-                    {facebookStatus === 'no_messages' && 'No Facebook messages found. Your page may not have received any messages yet, or permissions may need approval.'}
-                    {facebookStatus.startsWith('error') && `Facebook API Error: ${facebookStatus.split(': ')[1]}. Check browser console for details.`}
-                    {facebookStatus.startsWith('exception') && `Connection error: ${facebookStatus.split(': ')[1]}. Showing demo data.`}
-                  </p>
-                </div>
+                <a 
+                  href="/settings" 
+                  className="ml-4 px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 whitespace-nowrap"
+                >
+                  Go to Settings
+                </a>
               </div>
             </div>
           )}
