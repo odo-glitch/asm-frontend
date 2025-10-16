@@ -85,9 +85,9 @@ export default function SignupForm() {
   }
 
   return (
-    <div className="mt-8 space-y-6">
+    <div className="space-y-6">
       {error && (
-        <div className="rounded-md bg-red-50 p-4">
+        <div className="rounded-xl bg-red-50 border border-red-200 p-4">
           <div className="flex">
             <div className="ml-3">
               <h3 className="text-sm font-medium text-red-800">{error}</h3>
@@ -101,7 +101,7 @@ export default function SignupForm() {
         type="button"
         onClick={handleGoogleSignup}
         disabled={googleLoading || loading}
-        className="w-full flex items-center justify-center gap-3 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-center gap-3 px-6 py-3 border border-gray-300 rounded-xl shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-md"
       >
         <svg className="w-5 h-5" viewBox="0 0 24 24">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -118,16 +118,16 @@ export default function SignupForm() {
           <div className="w-full border-t border-gray-300" />
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-white text-gray-500">Or sign up with email</span>
+          <span className="px-4 bg-white/90 lg:bg-white/95 text-gray-600 font-medium">Or sign up with email</span>
         </div>
       </div>
 
       {/* Email/Password Form */}
-      <form className="space-y-6" onSubmit={handleSignup}>
+      <form className="space-y-5" onSubmit={handleSignup}>
         <input type="hidden" name="remember" defaultValue="true" />
-      <div className="rounded-md shadow-sm -space-y-px">
+      <div className="space-y-4">
         <div>
-          <label htmlFor="email-address" className="sr-only">
+          <label htmlFor="email-address" className="block text-sm font-medium text-gray-700 mb-2">
             Email address
           </label>
           <input
@@ -136,14 +136,14 @@ export default function SignupForm() {
             type="email"
             autoComplete="email"
             required
-            className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-            placeholder="Email address"
+            className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 text-base"
+            placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
         <div>
-          <label htmlFor="password" className="sr-only">
+          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
             Password
           </label>
           <input
@@ -152,14 +152,14 @@ export default function SignupForm() {
             type="password"
             autoComplete="new-password"
             required
-            className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-            placeholder="Password"
+            className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 text-base"
+            placeholder="Create a password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
         <div>
-          <label htmlFor="confirm-password" className="sr-only">
+          <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700 mb-2">
             Confirm Password
           </label>
           <input
@@ -168,8 +168,8 @@ export default function SignupForm() {
             type="password"
             autoComplete="new-password"
             required
-            className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-            placeholder="Confirm password"
+            className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 text-base"
+            placeholder="Confirm your password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
@@ -180,7 +180,7 @@ export default function SignupForm() {
         <button
           type="submit"
           disabled={loading}
-          className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="group relative w-full flex justify-center py-3 px-6 border border-transparent text-base font-semibold rounded-xl text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
         >
           {loading ? 'Creating account...' : 'Sign up'}
         </button>
