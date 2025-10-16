@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { AppLayout } from '@/components/layout/AppLayout';
 import { OrganizationsAPI } from '@/lib/api/organizations';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -185,7 +186,8 @@ export default function AccountsPage() {
   const teamLimit = 5; // You can make this dynamic based on plan
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-6xl">
+    <AppLayout>
+      <div className="container mx-auto py-8 px-4 max-w-6xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Account Management</h1>
         <p className="text-gray-600">Manage your organizations and team members</p>
@@ -313,6 +315,7 @@ export default function AccountsPage() {
           </CardContent>
         </Card>
       )}
-    </div>
+      </div>
+    </AppLayout>
   );
 }

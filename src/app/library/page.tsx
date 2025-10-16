@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { AppLayout } from '@/components/layout/AppLayout'
 import { Sidebar } from '@/components/dashboard/Sidebar'
 import { Card } from '@/components/ui/card'
 import { SocialAccount, fetchUserSocialAccounts } from '@/lib/social-accounts'
@@ -201,7 +202,7 @@ export default function LibraryPage() {
   })
 
   return (
-    <>
+    <AppLayout>
       <Sidebar 
         accounts={accounts} 
         onCreatePost={() => {}}
@@ -407,6 +408,6 @@ export default function LibraryPage() {
           </div>
         </div>
       </div>
-    </>
+    </AppLayout>
   )
 }
