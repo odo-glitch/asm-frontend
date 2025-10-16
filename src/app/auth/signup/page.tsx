@@ -3,7 +3,7 @@ import TypingAnimation from '@/components/auth/TypingAnimation'
 
 export default function SignupPage() {
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="min-h-screen relative overflow-hidden animate-page-enter">
       {/* Full Screen Video Background */}
       <div className="fixed inset-0 w-full h-full">
         <video
@@ -11,7 +11,8 @@ export default function SignupPage() {
           loop
           muted
           playsInline
-          preload="auto"
+          preload="metadata"
+          poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080'%3E%3Crect fill='%23000000' width='1920' height='1080'/%3E%3C/svg%3E"
           className="w-full h-full object-cover"
         >
           <source src="/odomarketing-background-socialmedia.mp4" type="video/mp4" />
