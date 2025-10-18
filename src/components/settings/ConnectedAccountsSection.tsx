@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Twitter, Facebook, Linkedin, Instagram, Plus, Trash2, RefreshCw } from 'lucide-react';
+import { Twitter, Plus, Trash2, RefreshCw } from 'lucide-react';
 import { SocialAccount } from '@/lib/social-accounts';
 import { createClient } from '@/lib/supabase/client';
 import { ConnectAccountModal } from './ConnectAccountModal';

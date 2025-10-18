@@ -321,7 +321,7 @@ export default function BusinessProfilePage() {
                   <div>
                     <h3 className="font-semibold text-blue-900 mb-1">Demo Mode: Sample Data</h3>
                     <p className="text-sm text-blue-700">
-                      You're viewing sample performance data. Connect your Google Business Profile to see real analytics, reviews, and insights.
+                      You&apos;re viewing sample performance data. Connect your Google Business Profile to see real analytics, reviews, and insights.
                     </p>
                   </div>
                 </div>

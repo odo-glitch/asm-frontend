@@ -79,9 +79,10 @@ export function BrandProfileSection({ userId }: BrandProfileSectionProps) {
         title: 'Success',
         description: 'Brand profile saved successfully',
       });
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as Error;
       console.error('Error saving brand profile:', error);
-      const errorMessage = error?.message || 'Failed to save brand profile';
+      const errorMessage = err?.message || 'Failed to save brand profile';
       toast({
         title: 'Error',
         description: errorMessage,

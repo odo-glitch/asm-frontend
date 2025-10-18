@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const supabase = await createClient();
     
     // Check authentication
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     
-    const debug: any = {
+    const debug: Record<string, unknown> = {
       user: user ? { id: user.id, email: user.email } : null,
       userError: userError?.message || null,
     };
@@ -50,10 +50,11 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({ debug });
-  } catch (error: any) {
+  } catch (error) {
+    const err = error as Error;
     return NextResponse.json({
-      error: error.message,
-      stack: error.stack
+      error: err.message,
+      stack: err.stack
     }, { status: 500 });
   }
 }

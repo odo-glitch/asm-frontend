@@ -3,8 +3,6 @@
 import { 
   Plus, 
   Twitter, 
-  Facebook, 
-  Linkedin, 
   Home,
   Calendar,
   BarChart3,

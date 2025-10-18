@@ -96,12 +96,13 @@ For negative reviews (1-2 stars):
       const reply = completion.choices[0].message.content?.trim() || '';
 
       return NextResponse.json({ reply });
-    } catch (openAIError: any) {
+    } catch (openAIError) {
+      const apiError = openAIError as { message?: string; type?: string; code?: string; status?: number };
       console.error('OpenAI API error:', {
-        message: openAIError.message,
-        type: openAIError.type,
-        code: openAIError.code,
-        status: openAIError.status
+        message: apiError.message,
+        type: apiError.type,
+        code: apiError.code,
+        status: apiError.status
       });
       
       // Fallback to template-based responses if OpenAI fails
@@ -119,9 +120,10 @@ For negative reviews (1-2 stars):
       return NextResponse.json({ reply: templateReply });
     }
   } catch (error) {
+    const err = error as Error;
     console.error('Error generating reply:', error);
     return NextResponse.json(
-      { error: 'Failed to generate reply' },
+      { error: err.message },
       { status: 500 }
     );
   }

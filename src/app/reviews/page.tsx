@@ -17,7 +17,6 @@ import {
   ThumbsUp,
   Filter,
   RefreshCw,
-  Facebook,
   Loader2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -215,7 +214,7 @@ export default function ReviewsPage() {
                     This demonstration showcases our intelligent review management system. We integrate with <strong>Google Business Profile</strong> and <strong>Facebook Pages</strong> to centralize all your customer reviews in one place. Our AI-powered reply generation helps you respond quickly and professionally to every review, improving customer satisfaction and online reputation.
                   </p>
                   <p className="text-xs text-blue-600 mt-2 font-medium">
-                    🔐 Below are sample reviews demonstrating the API integration capabilities we're requesting access for.
+                    🔐 Below are sample reviews demonstrating the API integration capabilities we&apos;re requesting access for.
                   </p>
                 </div>
               </div>
