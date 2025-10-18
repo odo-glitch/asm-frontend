@@ -67,9 +67,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                     className="relative filter brightness-0"
                   />
                 </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent hidden sm:block">
-                  Odo Marketing
-                </span>
+
               </Link>
             </div>
 

@@ -59,6 +59,64 @@ interface BusinessProfile {
   reviews?: Review[]
 }
 
+// Mockup data for demo purposes
+const MOCKUP_PERFORMANCE: PerformanceData = {
+  totalViews: 12543,
+  totalSearches: 3421,
+  totalActions: 1876,
+  viewsChange: 12.5,
+  searchesChange: 8.3,
+  actionsChange: 15.7
+}
+
+const MOCKUP_VIEWS: ViewsData[] = [
+  { date: 'Jan 1', views: 420 },
+  { date: 'Jan 8', views: 580 },
+  { date: 'Jan 15', views: 720 },
+  { date: 'Jan 22', views: 650 },
+  { date: 'Jan 29', views: 890 },
+  { date: 'Feb 5', views: 1100 },
+  { date: 'Feb 12', views: 950 }
+]
+
+const MOCKUP_ACTIONS: ActionData[] = [
+  { action: 'Website Visits', count: 456 },
+  { action: 'Direction Requests', count: 234 },
+  { action: 'Phone Calls', count: 123 },
+  { action: 'Messages', count: 89 }
+]
+
+const MOCKUP_REVIEWS: Review[] = [
+  {
+    id: '1',
+    platform: 'google',
+    rating: 5,
+    reviewerName: 'Sarah Johnson',
+    reviewText: 'Outstanding service! The team was professional and delivered exactly what we needed. Highly recommend!',
+    date: '2024-01-15',
+    replied: false
+  },
+  {
+    id: '2',
+    platform: 'google',
+    rating: 4,
+    reviewerName: 'Michael Chen',
+    reviewText: 'Great experience overall. Quick response times and quality work. Will definitely use again.',
+    date: '2024-01-10',
+    replied: true,
+    replyText: 'Thank you so much for your wonderful review, Michael! We appreciate your business.'
+  },
+  {
+    id: '3',
+    platform: 'google',
+    rating: 5,
+    reviewerName: 'Emily Rodriguez',
+    reviewText: 'Absolutely amazing! Exceeded all my expectations. The attention to detail was impressive.',
+    date: '2024-01-08',
+    replied: false
+  }
+]
+
 export default function BusinessProfilePage() {
   const [accounts, setAccounts] = useState<SocialAccount[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -91,7 +149,6 @@ export default function BusinessProfilePage() {
 
   useEffect(() => {
     async function loadData() {
-      setIsLoading(true)
       try {
         const supabase = createClient()
         const { data: { user } } = await supabase.auth.getUser()
@@ -101,24 +158,38 @@ export default function BusinessProfilePage() {
         }
         
         setUser(user)
-        const fetchedAccounts = await fetchUserSocialAccounts()
-        setAccounts(fetchedAccounts)
-
-        // Fetch business profile data
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/business-profile?userId=${user.id}`, {
-          credentials: 'include'
-        })
         
-        if (response.ok) {
-          const data: BusinessProfile = await response.json()
-          setBusinessProfile(data)
-          if (data.reviews?.[0]) {
-            setSelectedReview(data.reviews[0])
+        // Set mockup data immediately for fast loading
+        setBusinessProfile({
+          isConnected: false,
+          performanceData: MOCKUP_PERFORMANCE,
+          viewsData: MOCKUP_VIEWS,
+          actionsData: MOCKUP_ACTIONS,
+          reviews: MOCKUP_REVIEWS
+        })
+        setSelectedReview(MOCKUP_REVIEWS[0])
+        setIsLoading(false)
+
+        // Load real data in background (non-blocking)
+        Promise.all([
+          fetchUserSocialAccounts().catch(() => []),
+          fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/business-profile?userId=${user.id}`, {
+            credentials: 'include',
+            signal: AbortSignal.timeout(5000) // 5 second timeout
+          }).then(r => r.ok ? r.json() : null).catch(() => null)
+        ]).then(([fetchedAccounts, profileData]) => {
+          setAccounts(fetchedAccounts)
+          
+          if (profileData && profileData.isConnected) {
+            // Update with real data if available
+            setBusinessProfile(profileData)
+            if (profileData.reviews?.[0]) {
+              setSelectedReview(profileData.reviews[0])
+            }
           }
-        }
+        })
       } catch (error) {
         console.error('Failed to load data:', error)
-      } finally {
         setIsLoading(false)
       }
     }
@@ -242,6 +313,21 @@ export default function BusinessProfilePage() {
         {/* Main Content */}
         <div className="flex-1 ml-64 p-8">
           <div className="max-w-7xl mx-auto">
+            {/* Demo Banner - Show when using mockup data */}
+            {!businessProfile.isConnected && (
+              <div className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <Sparkles className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h3 className="font-semibold text-blue-900 mb-1">Demo Mode: Sample Data</h3>
+                    <p className="text-sm text-blue-700">
+                      You're viewing sample performance data. Connect your Google Business Profile to see real analytics, reviews, and insights.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+            
             {/* Header */}
             <div className="mb-8 flex justify-between items-center">
               <div>

@@ -92,18 +92,9 @@ export class OrganizationsAPI {
         .from('super_admins')
         .select('user_id')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (adminError) {
-        console.error('Super admin check error:', {
-          message: adminError.message,
-          code: adminError.code,
-          details: adminError.details,
-          hint: adminError.hint
-        });
-      }
-
-      const isSuperAdmin = !adminError && adminData;
+      const isSuperAdmin = !adminError && adminData !== null;
 
       // Get organizations user is a member of
       const { data: orgs, error: orgsError, count } = await this.supabase

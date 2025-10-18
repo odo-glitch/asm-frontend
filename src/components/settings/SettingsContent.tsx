@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { Sidebar } from '@/components/dashboard/Sidebar';
 import { SocialAccount, fetchUserSocialAccounts } from '@/lib/social-accounts';
 import { ConnectedAccountsSection } from './ConnectedAccountsSection';
+import { BrandProfileSection } from './BrandProfileSection';
 import { FacebookPageSelector } from './FacebookPageSelector';
 
 interface SettingsContentProps {
@@ -82,6 +83,9 @@ export function SettingsContent({ userEmail, userId }: SettingsContentProps) {
                   userId={userId}
                   onAccountsChange={loadAccounts}
                 />
+
+                {/* Brand Profile Section */}
+                <BrandProfileSection userId={userId} />
               </div>
             </div>
           </main>
