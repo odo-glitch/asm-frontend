@@ -61,7 +61,7 @@ function AcceptInvitationContent() {
 
     setAccepting(true);
     try {
-      const result = await invitationsAPI.acceptInvitation(token);
+      await invitationsAPI.acceptInvitation(token);
       
       toast({
         title: 'Success!',

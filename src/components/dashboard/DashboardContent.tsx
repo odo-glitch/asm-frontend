@@ -159,7 +159,7 @@ export function DashboardContent({ userEmail }: DashboardContentProps) {
                   />
                 )}
               </div>
-              <p className="text-gray-700 text-lg font-medium">Here's what's happening with your social media</p>
+              <p className="text-gray-700 text-lg font-medium">Here&apos;s what&apos;s happening with your social media</p>
             </div>
           </div>
 
