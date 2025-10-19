@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { InvitationsAPI } from '@/lib/api/invitations';
@@ -9,10 +9,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Mail } from 'lucide-react';
+import { ArrowLeft, Mail, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-export default function InvitePage() {
+function InvitePageContent() {
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<'admin' | 'member' | 'viewer'>('member');
   const [loading, setLoading] = useState(false);
@@ -148,5 +148,22 @@ export default function InvitePage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function InvitePage() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto py-8 px-4 max-w-xl">
+        <Card>
+          <CardContent className="pt-12 pb-12 flex flex-col items-center">
+            <Loader2 className="h-12 w-12 text-blue-600 animate-spin mb-4" />
+            <p className="text-gray-600">Loading...</p>
+          </CardContent>
+        </Card>
+      </div>
+    }>
+      <InvitePageContent />
+    </Suspense>
   );
 }
