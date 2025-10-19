@@ -241,7 +241,7 @@ export default function AccountsPage() {
                 </CardDescription>
               </div>
               <Button
-                onClick={() => router.push('/accounts/invite')}
+                onClick={() => router.push(`/accounts/invite?orgId=${selectedOrg}`)}
                 disabled={teamMembers.length >= teamLimit}
               >
                 Invite Member

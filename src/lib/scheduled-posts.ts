@@ -5,7 +5,7 @@ export interface ScheduledPost {
   user_id: string;
   social_account_id: string;
   content: string;
-  scheduled_for: string; // Changed from scheduled_time to scheduled_for
+  scheduled_time: string;
   platform: string;
   status: 'scheduled' | 'published' | 'failed' | 'cancelled';
   published_at: string | null;
@@ -35,7 +35,7 @@ export async function createScheduledPost(data: CreateScheduledPostData) {
       user_id: user.id,
       social_account_id: data.social_account_id,
       content: data.content,
-      scheduled_for: data.scheduled_time, // Map to correct field name
+      scheduled_time: data.scheduled_time,
     })
     .select()
     .single();
@@ -51,29 +51,35 @@ export async function createScheduledPost(data: CreateScheduledPostData) {
 export async function fetchScheduledPosts(): Promise<ScheduledPost[]> {
   const supabase = createClient();
   
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  if (!user) {
-    throw new Error('User not authenticated');
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      console.warn('User not authenticated for scheduled posts');
+      return [];
+    }
+
+    const { data: posts, error } = await supabase
+      .from('scheduled_posts')
+      .select(`
+        *,
+        social_accounts!inner(platform)
+      `)
+      .eq('user_id', user.id)
+      .order('scheduled_time', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching scheduled posts:', error);
+      return []; // Return empty array instead of throwing
+    }
+
+    // Map the results to include platform from the joined social_accounts table
+    return posts?.map(post => ({
+      ...post,
+      platform: post.social_accounts?.platform || 'unknown'
+    })) || [];
+  } catch (error) {
+    console.error('Exception fetching scheduled posts:', error);
+    return []; // Return empty array on any error
   }
-
-  const { data: posts, error } = await supabase
-    .from('scheduled_posts')
-    .select(`
-      *,
-      social_accounts!inner(platform)
-    `)
-    .eq('user_id', user.id)
-    .order('scheduled_for', { ascending: true });
-
-  if (error) {
-    console.error('Error fetching scheduled posts:', error);
-    throw error;
-  }
-
-  // Map the results to include platform from the joined social_accounts table
-  return posts?.map(post => ({
-    ...post,
-    platform: post.social_accounts?.platform || 'unknown'
-  })) || [];
 }

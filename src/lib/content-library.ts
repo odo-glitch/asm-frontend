@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/client'
 export interface ContentItem {
   id: string
   user_id: string
+  organization_id?: string | null
   type: 'image' | 'video' | 'document'
   name: string
   url: string
@@ -12,6 +13,7 @@ export interface ContentItem {
   source: 'upload' | 'canva' | 'dropbox'
   folder?: string | null
   tags: string[]
+  visibility?: 'organization' | 'all_organizations'
   metadata?: Record<string, unknown>
   created_at: string
   updated_at: string
@@ -20,12 +22,13 @@ export interface ContentItem {
 export interface ContentFolder {
   id: string
   user_id: string
+  organization_id?: string | null
   name: string
   parent_id?: string | null
   created_at: string
 }
 
-export async function fetchContentItems(): Promise<ContentItem[]> {
+export async function fetchContentItems(organizationId?: string | null): Promise<ContentItem[]> {
   const supabase = createClient()
   
   const { data: { user } } = await supabase.auth.getUser()
@@ -34,11 +37,19 @@ export async function fetchContentItems(): Promise<ContentItem[]> {
     throw new Error('User not authenticated')
   }
 
-  const { data, error } = await supabase
+  // If organizationId is provided, fetch organization content
+  // Otherwise fetch personal content
+  let query = supabase
     .from('content_library')
     .select('*')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
+
+  if (organizationId) {
+    query = query.eq('organization_id', organizationId)
+  } else {
+    query = query.eq('user_id', user.id).is('organization_id', null)
+  }
+
+  const { data, error } = await query.order('created_at', { ascending: false })
 
   if (error) {
     console.error('Error fetching content items:', error)
@@ -48,7 +59,7 @@ export async function fetchContentItems(): Promise<ContentItem[]> {
   return data || []
 }
 
-export async function fetchContentFolders(): Promise<ContentFolder[]> {
+export async function fetchContentFolders(organizationId?: string | null): Promise<ContentFolder[]> {
   const supabase = createClient()
   
   const { data: { user } } = await supabase.auth.getUser()
@@ -57,11 +68,17 @@ export async function fetchContentFolders(): Promise<ContentFolder[]> {
     throw new Error('User not authenticated')
   }
 
-  const { data, error } = await supabase
+  let query = supabase
     .from('content_folders')
     .select('*')
-    .eq('user_id', user.id)
-    .order('name', { ascending: true })
+
+  if (organizationId) {
+    query = query.eq('organization_id', organizationId)
+  } else {
+    query = query.eq('user_id', user.id).is('organization_id', null)
+  }
+
+  const { data, error } = await query.order('name', { ascending: true })
 
   if (error) {
     console.error('Error fetching folders:', error)
@@ -75,7 +92,9 @@ export async function uploadContent(
   file: File, 
   folder?: string, 
   tags: string[] = [],
-  source: 'upload' | 'canva' | 'dropbox' = 'upload'
+  source: 'upload' | 'canva' | 'dropbox' = 'upload',
+  organizationId?: string | null,
+  visibility: 'organization' | 'all_organizations' = 'organization'
 ): Promise<ContentItem> {
   const supabase = createClient()
   
@@ -114,6 +133,7 @@ export async function uploadContent(
     .from('content_library')
     .insert({
       user_id: user.id,
+      organization_id: organizationId,
       type,
       name: file.name,
       url: publicUrl,
@@ -122,7 +142,8 @@ export async function uploadContent(
       mime_type: file.type,
       source,
       folder,
-      tags
+      tags,
+      visibility
     })
     .select()
     .single()
@@ -174,7 +195,7 @@ export async function updateContentItem(
   return data
 }
 
-export async function createFolder(name: string, parentId?: string): Promise<ContentFolder> {
+export async function createFolder(name: string, parentId?: string, organizationId?: string | null): Promise<ContentFolder> {
   const supabase = createClient()
   
   const { data: { user } } = await supabase.auth.getUser()
@@ -187,6 +208,7 @@ export async function createFolder(name: string, parentId?: string): Promise<Con
     .from('content_folders')
     .insert({
       user_id: user.id,
+      organization_id: organizationId,
       name,
       parent_id: parentId
     })

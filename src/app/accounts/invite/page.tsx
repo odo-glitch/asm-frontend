@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useMemo } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
+import { InvitationsAPI } from '@/lib/api/invitations';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,28 +14,61 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function InvitePage() {
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState<string>('member');
+  const [role, setRole] = useState<'admin' | 'member' | 'viewer'>('member');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
+  const supabase = createClient();
+  const invitationsAPI = useMemo(() => new InvitationsAPI(supabase), [supabase]);
+
+  const organizationId = searchParams.get('orgId');
+
+  useEffect(() => {
+    if (!organizationId) {
+      toast({
+        title: 'Error',
+        description: 'No organization selected',
+        variant: 'destructive',
+      });
+      router.push('/accounts');
+    }
+  }, [organizationId, router, toast]);
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!organizationId) {
+      toast({
+        title: 'Error',
+        description: 'No organization selected',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // TODO: Implement invitation API call
+      const response = await invitationsAPI.createInvitation({
+        email,
+        role,
+        organizationId
+      });
+
       toast({
         title: 'Success',
-        description: `Invitation sent to ${email}`,
+        description: response.warning || `Invitation sent to ${email}`,
+        variant: response.warning ? 'default' : 'default',
       });
       
       // Redirect back to accounts page
       setTimeout(() => router.push('/accounts'), 1500);
-    } catch {
+    } catch (error) {
+      console.error('Invitation error:', error);
       toast({
         title: 'Error',
-        description: 'Failed to send invitation',
+        description: error instanceof Error ? error.message : 'Failed to send invitation',
         variant: 'destructive',
       });
     } finally {
@@ -75,7 +110,7 @@ export default function InvitePage() {
 
             <div className="space-y-2">
               <Label htmlFor="role">Role</Label>
-              <Select value={role} onValueChange={setRole}>
+              <Select value={role} onValueChange={(value) => setRole(value as 'admin' | 'member' | 'viewer')}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

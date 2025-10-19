@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Sidebar } from '@/components/dashboard/Sidebar';
 import { SocialAccount, fetchUserSocialAccounts } from '@/lib/social-accounts';
+import { PersonalProfileSection } from './PersonalProfileSection';
 import { ConnectedAccountsSection } from './ConnectedAccountsSection';
 import { BrandProfileSection } from './BrandProfileSection';
 import { FacebookPageSelector } from './FacebookPageSelector';
@@ -77,6 +78,9 @@ export function SettingsContent({ userEmail, userId }: SettingsContentProps) {
           <main>
             <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
               <div className="px-4 py-8 sm:px-0 space-y-8">
+                {/* Personal Profile Section */}
+                <PersonalProfileSection />
+
                 {/* Connected Accounts Section */}
                 <ConnectedAccountsSection 
                   accounts={accounts} 

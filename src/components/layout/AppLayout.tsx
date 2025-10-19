@@ -12,7 +12,9 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
+  const [userName, setUserName] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const router = useRouter();
@@ -27,7 +29,15 @@ export function AppLayout({ children }: AppLayoutProps) {
         return;
       }
       
+      // Get user name from metadata or email
+      const fullName = user.user_metadata?.full_name || 
+                      user.user_metadata?.name || 
+                      user.email?.split('@')[0] || 
+                      'User';
+      
+      setUserName(fullName);
       setUserEmail(user.email || null);
+      setAvatarUrl(user.user_metadata?.avatar_url || null);
       setLoading(false);
     };
 
@@ -107,12 +117,21 @@ export function AppLayout({ children }: AppLayoutProps) {
                   className="flex items-center space-x-3 px-3 py-2 rounded-xl hover:bg-gray-100 transition-all duration-200 group"
                 >
                   {/* Avatar */}
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center justify-center text-white font-semibold shadow-md group-hover:shadow-lg transition-shadow">
-                    {userEmail?.charAt(0).toUpperCase()}
-                  </div>
-                  {/* Email & Dropdown Icon */}
+                  {avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img 
+                      src={avatarUrl} 
+                      alt={userName || 'User'} 
+                      className="w-9 h-9 rounded-full object-cover shadow-md group-hover:shadow-lg transition-shadow"
+                    />
+                  ) : (
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center justify-center text-white font-semibold shadow-md group-hover:shadow-lg transition-shadow">
+                      {userName?.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  {/* Name & Dropdown Icon */}
                   <div className="hidden sm:flex items-center space-x-2">
-                    <span className="text-sm font-medium text-gray-700 max-w-[150px] truncate">{userEmail}</span>
+                    <span className="text-sm font-medium text-gray-700 max-w-[150px] truncate">{userName}</span>
                     <svg
                       className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`}
                       fill="none"

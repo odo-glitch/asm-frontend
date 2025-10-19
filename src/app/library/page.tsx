@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { Sidebar } from '@/components/dashboard/Sidebar'
 import { Card } from '@/components/ui/card'
@@ -10,6 +11,7 @@ import {
   fetchContentItems,
   fetchContentFolders,
   uploadContent,
+  deleteContentItem,
   getCanvaAuthUrl,
   getDropboxAuthUrl
 } from '@/lib/content-library'
@@ -24,8 +26,11 @@ import {
   List,
   Download,
   Trash2,
-  Edit,
-  FolderPlus
+  FolderPlus,
+  Plus,
+  Globe,
+  Lock,
+  X
 } from 'lucide-react'
 
 interface ContentLibraryState {
@@ -35,6 +40,11 @@ interface ContentLibraryState {
   searchQuery: string
   filterType: 'all' | 'image' | 'video' | 'document'
   viewMode: 'grid' | 'list'
+}
+
+interface UploadModalState {
+  isOpen: boolean
+  visibility: 'organization' | 'all_organizations'
 }
 
 function formatFileSize(bytes: number): string {
@@ -61,8 +71,15 @@ function ContentTypeIcon({ type }: { type: string }) {
 export default function LibraryPage() {
   const [accounts, setAccounts] = useState<SocialAccount[]>([])
   const [, setIsLoading] = useState(true) // isLoading - will be used for loading state
-  // const [showUploadModal, setShowUploadModal] = useState(false) // Will be used for upload modal
-  // const [selectedItems, setSelectedItems] = useState<string[]>([]) // Will be used for multi-select
+  const [selectedOrgId, setSelectedOrgId] = useState<string | null>(() => 
+    typeof window !== 'undefined' ? localStorage.getItem('selectedOrgId') : null
+  )
+  const [uploadModal, setUploadModal] = useState<UploadModalState>({
+    isOpen: false,
+    visibility: 'organization'
+  })
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const router = useRouter()
   
   const [library, setLibrary] = useState<ContentLibraryState>({
     items: [],
@@ -79,8 +96,8 @@ export default function LibraryPage() {
       try {
         const [fetchedAccounts, items, folders] = await Promise.all([
           fetchUserSocialAccounts(),
-          fetchContentItems(),
-          fetchContentFolders()
+          fetchContentItems(selectedOrgId),
+          fetchContentFolders(selectedOrgId)
         ])
         
         setAccounts(fetchedAccounts)
@@ -102,7 +119,7 @@ export default function LibraryPage() {
     }
 
     loadData()
-  }, [])
+  }, [selectedOrgId])
 
   const generateMockLibraryItems = (): ContentItem[] => {
     const userId = 'mock-user-id' // This will be replaced with real user ID from session
@@ -159,7 +176,14 @@ export default function LibraryPage() {
     setIsLoading(true)
     try {
       const uploadPromises = Array.from(files).map(file => 
-        uploadContent(file, library.selectedFolder || 'Uploads', [], 'upload')
+        uploadContent(
+          file, 
+          library.selectedFolder || 'Uploads', 
+          [], 
+          'upload',
+          selectedOrgId,
+          uploadModal.visibility
+        )
       )
       
       const newItems = await Promise.all(uploadPromises)
@@ -170,8 +194,9 @@ export default function LibraryPage() {
         items: [...newItems, ...prev.items]
       }))
       
-      // Reset file input
+      // Reset file input and close modal
       event.target.value = ''
+      setUploadModal({ isOpen: false, visibility: 'organization' })
     } catch (error) {
       console.error('Failed to upload files:', error)
       alert('Failed to upload files. Please try again.')
@@ -192,6 +217,27 @@ export default function LibraryPage() {
     window.location.href = dropboxUrl
   }
 
+  const handleDeleteContent = async (itemId: string) => {
+    if (!confirm('Are you sure you want to delete this content? This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      await deleteContentItem(itemId)
+      
+      // Remove item from the library state
+      setLibrary(prev => ({
+        ...prev,
+        items: prev.items.filter(item => item.id !== itemId)
+      }))
+      
+      alert('Content deleted successfully!')
+    } catch (error) {
+      console.error('Failed to delete content:', error)
+      alert('Failed to delete content. Please try again.')
+    }
+  }
+
   const filteredItems = library.items.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(library.searchQuery.toLowerCase()) ||
                          item.tags.some(tag => tag.toLowerCase().includes(library.searchQuery.toLowerCase()))
@@ -205,7 +251,7 @@ export default function LibraryPage() {
     <AppLayout>
       <Sidebar 
         accounts={accounts} 
-        onCreatePost={() => {}}
+        onCreatePost={() => router.push('/dashboard')}
       />
       
       <div className="ml-64">
@@ -228,23 +274,26 @@ export default function LibraryPage() {
                 <Link2 className="w-4 h-4" />
                 Link Dropbox
               </button>
-              <label className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer">
+              <button
+                onClick={() => setUploadModal({ isOpen: true, visibility: 'organization' })}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
                 <Upload className="w-4 h-4" />
                 Upload Content
-                <input
-                  type="file"
-                  multiple
-                  onChange={handleFileUpload}
-                  className="hidden"
-                  accept="image/*,video/*,.pdf,.doc,.docx"
-                />
-              </label>
+              </button>
+              <button
+                onClick={() => router.push('/dashboard')}
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              >
+                <Plus className="w-4 h-4" />
+                Create Post
+              </button>
             </div>
           </div>
 
           {/* Toolbar */}
           <Card className="p-4">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center justify-between gap-4 ">
               {/* Search */}
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -253,7 +302,7 @@ export default function LibraryPage() {
                   placeholder="Search by name or tags..."
                   value={library.searchQuery}
                   onChange={(e) => setLibrary(prev => ({ ...prev, searchQuery: e.target.value }))}
-                  className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-10 pr-4 py-2 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
@@ -261,7 +310,7 @@ export default function LibraryPage() {
               <select
                 value={library.filterType}
                 onChange={(e) => setLibrary(prev => ({ ...prev, filterType: e.target.value as 'all' | 'image' | 'video' | 'document' }))}
-                className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-4 py-2 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="all">All Types</option>
                 <option value="image">Images</option>
@@ -270,7 +319,7 @@ export default function LibraryPage() {
               </select>
 
               {/* View mode */}
-              <div className="flex border rounded-lg">
+              <div className="flex border border-blue-200 rounded-lg">
                 <button
                   onClick={() => setLibrary(prev => ({ ...prev, viewMode: 'grid' }))}
                   className={`p-2 ${library.viewMode === 'grid' ? 'bg-gray-100' : ''}`}
@@ -324,12 +373,35 @@ export default function LibraryPage() {
                 <div className="grid grid-cols-3 gap-4">
                   {filteredItems.map(item => (
                     <Card key={item.id} className="p-4 hover:shadow-lg transition-shadow cursor-pointer">
-                      <div className="aspect-video bg-gray-100 rounded-lg mb-3 flex items-center justify-center">
+                      <div className="aspect-video bg-gray-100 rounded-lg mb-3 flex items-center justify-center relative overflow-hidden">
                         {item.type === 'image' && item.thumbnail_url ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={item.thumbnail_url} alt={item.name} className="w-full h-full object-cover rounded-lg" />
+                        ) : item.type === 'video' && item.url ? (
+                          <video 
+                            src={item.url} 
+                            className="w-full h-full object-cover rounded-lg"
+                            muted
+                            playsInline
+                          />
                         ) : (
                           <ContentTypeIcon type={item.type} />
+                        )}
+                        {/* Visibility Badge */}
+                        {item.visibility && (
+                          <div className="absolute top-2 right-2">
+                            {item.visibility === 'all_organizations' ? (
+                              <div className="bg-blue-500 text-white px-2 py-1 rounded-full flex items-center gap-1 text-xs">
+                                <Globe className="w-3 h-3" />
+                                <span>Shared</span>
+                              </div>
+                            ) : (
+                              <div className="bg-gray-700 text-white px-2 py-1 rounded-full flex items-center gap-1 text-xs">
+                                <Lock className="w-3 h-3" />
+                                <span>Private</span>
+                              </div>
+                            )}
+                          </div>
                         )}
                       </div>
                       <h4 className="font-medium truncate">{item.name}</h4>
@@ -347,13 +419,19 @@ export default function LibraryPage() {
                       <div className="flex items-center justify-between mt-3">
                         <span className="text-xs text-gray-500">{item.source}</span>
                         <div className="flex gap-1">
-                          <button className="p-1 hover:bg-gray-100 rounded">
+                          <a 
+                            href={item.url} 
+                            download={item.name}
+                            className="p-1 hover:bg-gray-100 rounded"
+                            title="Download"
+                          >
                             <Download className="w-4 h-4" />
-                          </button>
-                          <button className="p-1 hover:bg-gray-100 rounded">
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button className="p-1 hover:bg-gray-100 rounded">
+                          </a>
+                          <button 
+                            onClick={() => handleDeleteContent(item.id)}
+                            className="p-1 hover:bg-red-100 rounded text-red-600"
+                            title="Delete"
+                          >
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
@@ -371,6 +449,7 @@ export default function LibraryPage() {
                         <th className="text-left p-4">Size</th>
                         <th className="text-left p-4">Uploaded</th>
                         <th className="text-left p-4">Source</th>
+                        <th className="text-left p-4">Visibility</th>
                         <th className="text-right p-4">Actions</th>
                       </tr>
                     </thead>
@@ -386,14 +465,35 @@ export default function LibraryPage() {
                           <td className="p-4">{new Date(item.created_at).toLocaleDateString()}</td>
                           <td className="p-4">{item.source}</td>
                           <td className="p-4">
+                            {item.visibility === 'all_organizations' ? (
+                              <div className="inline-flex items-center gap-1 text-xs text-blue-600">
+                                <Globe className="w-3 h-3" />
+                                <span>Shared</span>
+                              </div>
+                            ) : item.visibility === 'organization' ? (
+                              <div className="inline-flex items-center gap-1 text-xs text-gray-600">
+                                <Lock className="w-3 h-3" />
+                                <span>Private</span>
+                              </div>
+                            ) : (
+                              <span className="text-xs text-gray-400">-</span>
+                            )}
+                          </td>
+                          <td className="p-4">
                             <div className="flex gap-1 justify-end">
-                              <button className="p-1 hover:bg-gray-100 rounded">
+                              <a 
+                                href={item.url} 
+                                download={item.name}
+                                className="p-1 hover:bg-gray-100 rounded"
+                                title="Download"
+                              >
                                 <Download className="w-4 h-4" />
-                              </button>
-                              <button className="p-1 hover:bg-gray-100 rounded">
-                                <Edit className="w-4 h-4" />
-                              </button>
-                              <button className="p-1 hover:bg-gray-100 rounded">
+                              </a>
+                              <button 
+                                onClick={() => handleDeleteContent(item.id)}
+                                className="p-1 hover:bg-red-100 rounded text-red-600"
+                                title="Delete"
+                              >
                                 <Trash2 className="w-4 h-4" />
                               </button>
                             </div>
@@ -407,6 +507,88 @@ export default function LibraryPage() {
             </div>
           </div>
         </div>
+
+        {/* Upload Modal */}
+        {uploadModal.isOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold">Upload Content</h2>
+                <button
+                  onClick={() => setUploadModal({ isOpen: false, visibility: 'organization' })}
+                  className="p-1 hover:bg-gray-100 rounded"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {/* Visibility Option */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Visibility
+                  </label>
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                      <input
+                        type="radio"
+                        name="visibility"
+                        checked={uploadModal.visibility === 'organization'}
+                        onChange={() => setUploadModal(prev => ({ ...prev, visibility: 'organization' }))}
+                        className="w-4 h-4"
+                      />
+                      <Lock className="w-4 h-4 text-gray-600" />
+                      <div className="flex-1">
+                        <div className="font-medium">This Organization Only</div>
+                        <div className="text-xs text-gray-500">
+                          Content will only be visible to members of this organization
+                        </div>
+                      </div>
+                    </label>
+                    <label className="flex items-center gap-2 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                      <input
+                        type="radio"
+                        name="visibility"
+                        checked={uploadModal.visibility === 'all_organizations'}
+                        onChange={() => setUploadModal(prev => ({ ...prev, visibility: 'all_organizations' }))}
+                        className="w-4 h-4"
+                      />
+                      <Globe className="w-4 h-4 text-gray-600" />
+                      <div className="flex-1">
+                        <div className="font-medium">All My Organizations</div>
+                        <div className="text-xs text-gray-500">
+                          Content will be visible across all organizations you belong to
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* File Upload */}
+                <div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    accept="image/*,video/*,.pdf,.doc,.docx"
+                  />
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
+                  >
+                    <Upload className="w-5 h-5" />
+                    <span>Choose Files to Upload</span>
+                  </button>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Supported formats: Images, Videos, PDF, Word Documents
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </AppLayout>
   )
