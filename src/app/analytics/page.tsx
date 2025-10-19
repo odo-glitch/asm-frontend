@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { Sidebar } from '@/components/dashboard/Sidebar'
-import { CreatePostModal } from '@/components/dashboard/CreatePostModal'
 import { Card } from '@/components/ui/card'
 import { SocialAccount, fetchUserSocialAccounts } from '@/lib/social-accounts'
 import { 
@@ -69,8 +69,8 @@ function PlatformIcon({ platform }: { platform: string }) {
 }
 
 export default function AnalyticsPage() {
+  const router = useRouter()
   const [timeframe, setTimeframe] = useState('30days')
-  const [isModalOpen, setIsModalOpen] = useState(false)
   const [accounts, setAccounts] = useState<SocialAccount[]>([])
   const [isLoading, setIsLoading] = useState(true)
   interface AnalyticsDataType {
@@ -188,7 +188,7 @@ export default function AnalyticsPage() {
     <AppLayout>
       <Sidebar 
         accounts={accounts} 
-        onCreatePost={() => setIsModalOpen(true)}
+        onCreatePost={() => router.push('/create-post')}
       />
       
       <div className="ml-64">
@@ -216,7 +216,7 @@ export default function AnalyticsPage() {
         <div className="text-center py-12">
           <p className="text-gray-500 mb-4">No connected accounts found. Connect your social media accounts to see analytics.</p>
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => router.push('/settings')}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             Connect Accounts
@@ -399,12 +399,6 @@ export default function AnalyticsPage() {
       )}
     </div>
       </div>
-      
-      <CreatePostModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        accounts={accounts}
-      />
     </AppLayout>
   )
 }

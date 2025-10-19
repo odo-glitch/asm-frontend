@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Plus } from 'lucide-react';
-import { CreatePostModal } from '@/components/dashboard/CreatePostModal';
 import { Sidebar } from '@/components/dashboard/Sidebar';
 import { SocialAccount, fetchUserSocialAccounts } from '@/lib/social-accounts';
 import TextPressure from '@/components/TextPressure';
@@ -12,7 +12,7 @@ interface DashboardContentProps {
 }
 
 export function DashboardContent({ userEmail }: DashboardContentProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const router = useRouter();
   const [accounts, setAccounts] = useState<SocialAccount[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -46,7 +46,7 @@ export function DashboardContent({ userEmail }: DashboardContentProps) {
     <>
       <Sidebar 
         accounts={accounts} 
-        onCreatePost={() => setIsModalOpen(true)}
+        onCreatePost={() => router.push('/create-post')}
       />
       
       <div className="ml-64">
@@ -58,7 +58,7 @@ export function DashboardContent({ userEmail }: DashboardContentProps) {
                   Dashboard
                 </h1>
                 <button
-                  onClick={() => setIsModalOpen(true)}
+                  onClick={() => router.push('/create-post')}
                   className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
                   <Plus className="h-5 w-5" />
@@ -102,12 +102,6 @@ export function DashboardContent({ userEmail }: DashboardContentProps) {
           </main>
         </div>
       </div>
-
-      <CreatePostModal 
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        accounts={accounts}
-      />
     </>
   );
 }

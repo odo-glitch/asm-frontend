@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { Sidebar } from '@/components/dashboard/Sidebar'
-import { CreatePostModal } from '@/components/dashboard/CreatePostModal'
 import { Card } from '@/components/ui/card'
 import { SocialAccount, fetchUserSocialAccounts } from '@/lib/social-accounts'
 import { fetchScheduledPosts, ScheduledPost } from '@/lib/scheduled-posts'
@@ -196,9 +196,9 @@ function GenerateCalendarModal({ isOpen, onClose, onGenerate, accounts, isGenera
 }
 
 export default function CalendarPage() {
+  const router = useRouter()
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
   const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false)
   const [accounts, setAccounts] = useState<SocialAccount[]>([])
   const [scheduledPosts, setScheduledPosts] = useState<ScheduledPost[]>([])
@@ -304,7 +304,7 @@ export default function CalendarPage() {
 
   const handleDayClick = (date: Date) => {
     setSelectedDate(date)
-    setIsModalOpen(true)
+    router.push('/create-post')
   }
 
   const days = getDaysInMonth(currentDate)
@@ -314,7 +314,7 @@ export default function CalendarPage() {
     <AppLayout>
       <Sidebar 
         accounts={accounts} 
-        onCreatePost={() => setIsModalOpen(true)}
+        onCreatePost={() => router.push('/create-post')}
       />
       
       <div className="ml-64">
@@ -440,21 +440,6 @@ export default function CalendarPage() {
           ) : null}
         </div>
       </div>
-
-      <CreatePostModal
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false)
-          setSelectedDate(null)
-        }}
-        accounts={accounts}
-        defaultDate={selectedDate || undefined}
-        onPostScheduled={async () => {
-          // Refresh scheduled posts after creating a new one
-          const posts = await fetchScheduledPosts()
-          setScheduledPosts(posts)
-        }}
-      />
 
       <GenerateCalendarModal
         isOpen={isGenerateModalOpen}
