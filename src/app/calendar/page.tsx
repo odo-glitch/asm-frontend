@@ -289,7 +289,7 @@ export default function CalendarPage() {
 
   const getPostsForDate = (date: Date): ScheduledPost[] => {
     return scheduledPosts.filter(post => {
-      const postDate = new Date(post.scheduled_for)
+      const postDate = new Date(post.scheduled_time)
       return postDate.toDateString() === date.toDateString()
     })
   }
@@ -396,7 +396,7 @@ export default function CalendarPage() {
                           <div key={postIndex} className="flex items-center gap-1">
                             <PlatformIcon platform={post.platform} />
                             <span className="text-xs text-gray-600 truncate">
-                              {new Date(post.scheduled_for).toLocaleTimeString('en-US', {
+                              {new Date(post.scheduled_time).toLocaleTimeString('en-US', {
                                 hour: 'numeric',
                                 minute: '2-digit'
                               })}
