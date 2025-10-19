@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { X, Image as ImageIcon, Video, Calendar, Clock, ChevronDown, ChevronUp } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -18,7 +18,7 @@ interface PlatformSelection {
   selected: boolean;
 }
 
-export default function CreatePostPage() {
+function CreatePostContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -730,5 +730,13 @@ Make it engaging, professional, and optimized for ${platform}. Keep the core mes
       </div>
       </div>
     </AppLayout>
+  );
+}
+
+export default function CreatePostPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+      <CreatePostContent />
+    </Suspense>
   );
 }
