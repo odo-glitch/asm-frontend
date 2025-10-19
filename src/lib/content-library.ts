@@ -205,9 +205,10 @@ export async function createFolder(name: string, parentId?: string): Promise<Con
 export function getCanvaAuthUrl(): string {
   const clientId = process.env.NEXT_PUBLIC_CANVA_CLIENT_ID
   const redirectUri = encodeURIComponent(`${window.location.origin}/api/auth/canva/callback`)
-  const scope = 'read:designs'
+  // Using Canva's standard scopes
+  const scope = 'design:content:read design:meta:read'
   
-  return `https://www.canva.com/api/v1/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}`
+  return `https://www.canva.com/api/v1/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${encodeURIComponent(scope)}`
 }
 
 export function getDropboxAuthUrl(): string {
