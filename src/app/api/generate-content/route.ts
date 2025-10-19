@@ -38,11 +38,12 @@ export async function POST(request: NextRequest) {
     console.log('Generated content successfully');
 
     return NextResponse.json({ content });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error generating content:', error);
-    console.error('Error details:', error.message);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to generate content';
+    console.error('Error details:', errorMessage);
     return NextResponse.json(
-      { error: error.message || 'Failed to generate content' },
+      { error: errorMessage },
       { status: 500 }
     );
   }
