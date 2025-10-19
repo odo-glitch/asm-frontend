@@ -11,6 +11,7 @@ import { ArrowLeft, Building, Globe } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createClient } from '@/lib/supabase/client';
 import { OrganizationsAPI } from '@/lib/api/organizations';
+import { setSelectedOrganizationId } from '@/lib/organization-context';
 import { isAPIError } from '@/lib/api/errors';
 
 export default function NewOrganizationPage() {
@@ -92,8 +93,8 @@ export default function NewOrganizationPage() {
         description: `Organization "${organization.name}" created successfully`,
       });
 
-      // Store as selected org and prevent immediate refresh
-      localStorage.setItem('selectedOrgId', organization.id);
+      // Store as selected org and trigger event
+      setSelectedOrganizationId(organization.id);
       
       // Use replace instead of push to prevent back navigation
       router.replace('/dashboard');

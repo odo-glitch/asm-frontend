@@ -6,7 +6,7 @@ import { AppLayout } from '@/components/layout/AppLayout'
 import { Sidebar } from '@/components/dashboard/Sidebar'
 import { Card } from '@/components/ui/card'
 import { SocialAccount, fetchUserSocialAccounts } from '@/lib/social-accounts'
-import { fetchScheduledPosts, ScheduledPost } from '@/lib/scheduled-posts'
+import { fetchScheduledPosts, ScheduledPost, updateScheduledPost, deleteScheduledPost, createScheduledPost } from '@/lib/scheduled-posts'
 import { generateCalendarPosts } from '@/lib/ai-calendar'
 import { 
   ChevronLeft, 
@@ -14,10 +14,14 @@ import {
   Calendar as CalendarIcon,
   Sparkles,
   Facebook,
-  Twitter,
   Linkedin,
   Instagram,
-  Loader2
+  Loader2,
+  Edit2,
+  Trash2,
+  Plus,
+  X,
+  Save
 } from 'lucide-react'
 
 interface CalendarDay {
@@ -45,10 +49,19 @@ interface CalendarGenerationConfig {
 
 function PlatformIcon({ platform }: { platform: string }) {
   const icons = {
-    facebook: <Facebook className="w-4 h-4" />,
-    instagram: <Instagram className="w-4 h-4" />,
-    linkedin: <Linkedin className="w-4 h-4" />,
-    twitter: <Twitter className="w-4 h-4" />
+    facebook: <Facebook className="w-4 h-4 text-blue-600" />,
+    instagram: <Instagram className="w-4 h-4 text-pink-600" />,
+    linkedin: <Linkedin className="w-4 h-4 text-blue-700" />,
+    twitter: (
+      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+      </svg>
+    ),
+    x: (
+      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+      </svg>
+    )
   }
   return icons[platform as keyof typeof icons] || null
 }
@@ -195,6 +208,189 @@ function GenerateCalendarModal({ isOpen, onClose, onGenerate, accounts, isGenera
   )
 }
 
+interface DayManagementModalProps {
+  isOpen: boolean
+  onClose: () => void
+  date: Date | null
+  posts: ScheduledPost[]
+  accounts: SocialAccount[]
+  onRefresh: () => void
+  router: ReturnType<typeof useRouter>
+}
+
+function DayManagementModal({ isOpen, onClose, date, posts, accounts, onRefresh, router }: DayManagementModalProps) {
+  const [editingPostId, setEditingPostId] = useState<string | null>(null)
+  const [editContent, setEditContent] = useState('')
+  const [editTime, setEditTime] = useState('')
+  const [isSaving, setIsSaving] = useState(false)
+
+  if (!isOpen || !date) return null
+
+  const dateStr = date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+  
+  const handleAddPost = () => {
+    // Format date for URL
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const dateString = `${year}-${month}-${day}`
+    
+    router.push(`/create-post?date=${dateString}`)
+  }
+
+  const handleEdit = (post: ScheduledPost) => {
+    setEditingPostId(post.id)
+    setEditContent(post.content)
+    setEditTime(new Date(post.scheduled_time).toTimeString().slice(0, 5))
+  }
+
+  const handleSaveEdit = async (postId: string) => {
+    setIsSaving(true)
+    try {
+      const scheduledDateTime = new Date(date)
+      const [hours, minutes] = editTime.split(':')
+      scheduledDateTime.setHours(parseInt(hours), parseInt(minutes))
+
+      await updateScheduledPost(postId, {
+        content: editContent,
+        scheduled_time: scheduledDateTime.toISOString()
+      })
+      
+      setEditingPostId(null)
+      onRefresh()
+    } catch (error) {
+      console.error('Failed to update post:', error)
+      alert('Failed to update post')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleDelete = async (postId: string) => {
+    if (!confirm('Are you sure you want to delete this post?')) return
+    
+    setIsSaving(true)
+    try {
+      await deleteScheduledPost(postId)
+      onRefresh()
+    } catch (error) {
+      console.error('Failed to delete post:', error)
+      alert('Failed to delete post')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-gray-100/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg w-full max-w-2xl max-h-[80vh] overflow-y-auto shadow-xl">
+        <div className="sticky top-0 bg-white border-b p-4 flex justify-between items-center">
+          <div>
+            <h2 className="text-xl font-semibold">Manage Posts</h2>
+            <p className="text-sm text-gray-600">{dateStr}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-lg"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="p-4 space-y-4">
+          {/* Existing Posts */}
+          {posts.length > 0 ? (
+            posts.map((post) => (
+              <div key={post.id} className="border rounded-lg p-4">
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <PlatformIcon platform={post.platform} />
+                    <span className="text-sm font-medium capitalize">{post.platform}</span>
+                    <span className="text-xs text-gray-500">
+                      {new Date(post.scheduled_time).toLocaleTimeString('en-US', {
+                        hour: 'numeric',
+                        minute: '2-digit'
+                      })}
+                    </span>
+                  </div>
+                  {editingPostId !== post.id && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleEdit(post)}
+                        className="p-1 hover:bg-gray-100 rounded"
+                        disabled={isSaving}
+                      >
+                        <Edit2 className="w-4 h-4 text-blue-600" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(post.id)}
+                        className="p-1 hover:bg-gray-100 rounded"
+                        disabled={isSaving}
+                      >
+                        <Trash2 className="w-4 h-4 text-red-600" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {editingPostId === post.id ? (
+                  <div className="space-y-3">
+                    <textarea
+                      value={editContent}
+                      onChange={(e) => setEditContent(e.target.value)}
+                      className="w-full p-2 border rounded-lg resize-none"
+                      rows={3}
+                    />
+                    <input
+                      type="time"
+                      value={editTime}
+                      onChange={(e) => setEditTime(e.target.value)}
+                      className="p-2 border rounded-lg"
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleSaveEdit(post.id)}
+                        className="flex items-center gap-2 px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                        disabled={isSaving}
+                      >
+                        <Save className="w-4 h-4" />
+                        Save
+                      </button>
+                      <button
+                        onClick={() => setEditingPostId(null)}
+                        className="px-3 py-1 bg-gray-200 rounded-lg hover:bg-gray-300"
+                        disabled={isSaving}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-gray-700 whitespace-pre-wrap">{post.content}</p>
+                )}
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <CalendarIcon className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+              <p>No posts scheduled for this day</p>
+            </div>
+          )}
+
+          {/* Add New Post */}
+          <button
+            onClick={handleAddPost}
+            className="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 text-gray-600 hover:text-blue-600"
+          >
+            <Plus className="w-5 h-5" />
+            Add New Post
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function CalendarPage() {
   const router = useRouter()
   const [currentDate, setCurrentDate] = useState(new Date())
@@ -223,6 +419,15 @@ export default function CalendarPage() {
     }
 
     loadData()
+    
+    // Listen for organization changes and reload data
+    const handleOrgChange = () => {
+      console.log('Organization changed, reloading calendar data...')
+      loadData()
+    }
+    
+    window.addEventListener('organizationChanged', handleOrgChange)
+    return () => window.removeEventListener('organizationChanged', handleOrgChange)
   }, [])
 
   const handleGenerateCalendar = async (config: CalendarGenerationConfig) => {
@@ -239,6 +444,15 @@ export default function CalendarPage() {
       // You could add an error notification here
     } finally {
       setIsGenerating(false)
+    }
+  }
+
+  const handleRefreshPosts = async () => {
+    try {
+      const posts = await fetchScheduledPosts()
+      setScheduledPosts(posts)
+    } catch (error) {
+      console.error('Failed to refresh posts:', error)
     }
   }
 
@@ -304,7 +518,6 @@ export default function CalendarPage() {
 
   const handleDayClick = (date: Date) => {
     setSelectedDate(date)
-    router.push('/create-post')
   }
 
   const days = getDaysInMonth(currentDate)
@@ -447,6 +660,16 @@ export default function CalendarPage() {
         onGenerate={handleGenerateCalendar}
         accounts={accounts}
         isGenerating={isGenerating}
+      />
+
+      <DayManagementModal
+        isOpen={selectedDate !== null}
+        onClose={() => setSelectedDate(null)}
+        date={selectedDate}
+        posts={selectedDate ? getPostsForDate(selectedDate) : []}
+        accounts={accounts}
+        onRefresh={handleRefreshPosts}
+        router={router}
       />
     </AppLayout>
   )

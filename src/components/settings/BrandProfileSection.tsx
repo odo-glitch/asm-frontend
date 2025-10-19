@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Building2, Save, Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { getSelectedOrganizationId } from '@/lib/organization-context';
 import { useToast } from '@/hooks/use-toast';
 
 interface BrandProfileSectionProps {
@@ -28,26 +29,50 @@ export function BrandProfileSection({ userId }: BrandProfileSectionProps) {
 
   useEffect(() => {
     loadBrandProfile();
+    
+    // Listen for organization changes
+    const handleOrgChange = () => {
+      loadBrandProfile();
+    };
+    
+    window.addEventListener('organizationChanged', handleOrgChange);
+    return () => window.removeEventListener('organizationChanged', handleOrgChange);
   }, [userId]);
 
   const loadBrandProfile = async () => {
     setIsLoading(true);
     const supabase = createClient();
+    const organizationId = getSelectedOrganizationId();
     
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('brand_profiles')
         .select('*')
-        .eq('user_id', userId)
-        .single();
+        .eq('user_id', userId);
+      
+      // Filter by organization
+      if (organizationId) {
+        query = query.eq('organization_id', organizationId);
+      } else {
+        query = query.is('organization_id', null);
+      }
+      
+      const { data, error } = await query.single();
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error loading brand profile:', error);
+        // Clear profile on error
+        setProfile({});
       } else if (data) {
         setProfile(data);
+      } else {
+        // No brand profile found for this organization - clear the form
+        setProfile({});
       }
     } catch (error) {
       console.error('Error loading brand profile:', error);
+      // Clear profile on error
+      setProfile({});
     } finally {
       setIsLoading(false);
     }
@@ -56,16 +81,18 @@ export function BrandProfileSection({ userId }: BrandProfileSectionProps) {
   const handleSave = async () => {
     setIsSaving(true);
     const supabase = createClient();
+    const organizationId = getSelectedOrganizationId();
     
     try {
       const { data, error } = await supabase
         .from('brand_profiles')
         .upsert({
           user_id: userId,
+          organization_id: organizationId,
           ...profile,
           updated_at: new Date().toISOString()
         }, {
-          onConflict: 'user_id'
+          onConflict: organizationId ? 'user_id,organization_id' : 'user_id'
         })
         .select();
 

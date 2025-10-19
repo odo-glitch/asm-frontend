@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Sidebar } from '@/components/dashboard/Sidebar';
 import { SocialAccount, fetchUserSocialAccounts } from '@/lib/social-accounts';
+import { getSelectedOrganizationId } from '@/lib/organization-context';
 import { PersonalProfileSection } from './PersonalProfileSection';
 import { ConnectedAccountsSection } from './ConnectedAccountsSection';
 import { BrandProfileSection } from './BrandProfileSection';
@@ -48,12 +49,24 @@ export function SettingsContent({ userEmail, userId }: SettingsContentProps) {
       console.error(`Failed to connect account: ${error}`);
       // You could show an error toast here
     }
+    
+    // Listen for organization changes and reload accounts
+    const handleOrgChange = () => {
+      console.log('Organization changed, reloading accounts...');
+      loadAccounts();
+    };
+    
+    window.addEventListener('organizationChanged', handleOrgChange);
+    return () => window.removeEventListener('organizationChanged', handleOrgChange);
   }, [success, platform, error]);
 
   async function loadAccounts() {
     setIsLoading(true);
     try {
-      const fetchedAccounts = await fetchUserSocialAccounts();
+      // Get current organization and fetch accounts for it
+      const organizationId = getSelectedOrganizationId();
+      console.log('Loading accounts for organization:', organizationId || 'personal');
+      const fetchedAccounts = await fetchUserSocialAccounts(organizationId);
       setAccounts(fetchedAccounts);
     } catch (error) {
       console.error('Failed to load accounts:', error);

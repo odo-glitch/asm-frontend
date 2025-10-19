@@ -14,7 +14,7 @@ export default async function DashboardPage() {
 
   return (
     <AppLayout>
-      <DashboardContent userEmail={user.email!} />
+      <DashboardContent userEmail={user.email!} userId={user.id} />
     </AppLayout>
   )
 }

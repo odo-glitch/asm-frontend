@@ -1,8 +1,10 @@
 import { createClient } from '@/lib/supabase/client';
+import { getSelectedOrganizationId } from './organization-context';
 
 export interface SocialAccount {
   id: string;
   user_id: string;
+  organization_id: string | null;
   platform: string;
   account_name: string;
   account_id: string;
@@ -12,7 +14,7 @@ export interface SocialAccount {
   updated_at: string;
 }
 
-export async function fetchUserSocialAccounts(): Promise<SocialAccount[]> {
+export async function fetchUserSocialAccounts(organizationId?: string | null): Promise<SocialAccount[]> {
   try {
     console.log('Initializing social accounts fetch...');
     const supabase = createClient();
@@ -45,13 +47,25 @@ export async function fetchUserSocialAccounts(): Promise<SocialAccount[]> {
       email: user.email
     });
 
-    // Fetch social accounts with error handling
+    // Get selected organization if not provided
+    const orgId = organizationId !== undefined ? organizationId : getSelectedOrganizationId();
+    console.log('Filtering by organization:', orgId || 'personal');
+
+    // Fetch social accounts with error handling and organization filter
     console.log('Fetching social accounts for user...');
-    const { data, error } = await supabase
+    let query = supabase
       .from('social_accounts')
       .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
+      .eq('user_id', user.id);
+    
+    // Filter by organization
+    if (orgId) {
+      query = query.eq('organization_id', orgId);
+    } else {
+      query = query.is('organization_id', null);
+    }
+    
+    const { data, error } = await query.order('created_at', { ascending: false });
 
     if (error) {
       console.error('Social accounts fetch error:', {

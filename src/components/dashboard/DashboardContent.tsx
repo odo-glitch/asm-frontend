@@ -10,12 +10,14 @@ import { SocialAccount, fetchUserSocialAccounts } from '@/lib/social-accounts';
 import { getUserProfile, getDisplayName, UserProfile } from '@/lib/profile';
 import { ScheduledPost, fetchScheduledPosts } from '@/lib/scheduled-posts';
 import { Announcement, fetchAnnouncements, createAnnouncement, deleteAnnouncement } from '@/lib/announcements';
+import { getSelectedOrganizationId } from '@/lib/organization-context';
 
 interface DashboardContentProps {
   userEmail: string;
+  userId: string;
 }
 
-export function DashboardContent({ userEmail }: DashboardContentProps) {
+export function DashboardContent({ userEmail, userId }: DashboardContentProps) {
   const router = useRouter();
   const [accounts, setAccounts] = useState<SocialAccount[]>([]);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -24,7 +26,7 @@ export function DashboardContent({ userEmail }: DashboardContentProps) {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedOrgId, setSelectedOrgId] = useState<string | null>(() => 
-    typeof window !== 'undefined' ? localStorage.getItem('selectedOrgId') : null
+    typeof window !== 'undefined' ? getSelectedOrganizationId() : null
   );
   const [showAnnouncementForm, setShowAnnouncementForm] = useState(false);
   const [announcementForm, setAnnouncementForm] = useState({ title: '', message: '' });
@@ -34,22 +36,19 @@ export function DashboardContent({ userEmail }: DashboardContentProps) {
     loadData();
     
     // Listen for organization changes
-    const handleStorageChange = () => {
-      const newOrgId = localStorage.getItem('selectedOrgId');
-      if (newOrgId !== selectedOrgId) {
-        setSelectedOrgId(newOrgId);
-      }
+    const handleOrgChange = () => {
+      console.log('Organization changed, reloading dashboard data...');
+      const newOrgId = getSelectedOrganizationId();
+      setSelectedOrgId(newOrgId);
+      loadData();
     };
     
-    window.addEventListener('storage', handleStorageChange);
-    // Also check periodically in case change happens in same tab
-    const interval = setInterval(handleStorageChange, 1000);
+    window.addEventListener('organizationChanged', handleOrgChange);
     
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      clearInterval(interval);
+      window.removeEventListener('organizationChanged', handleOrgChange);
     };
-  }, [selectedOrgId]);
+  }, []);
 
   async function loadData() {
     setIsLoading(true);

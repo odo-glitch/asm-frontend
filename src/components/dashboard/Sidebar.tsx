@@ -14,10 +14,11 @@ import {
   Star
 } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { SocialAccount } from '@/lib/social-accounts';
 import { BrandSwitcher } from './BrandSwitcher';
+import { setSelectedOrganizationId, getSelectedOrganizationId } from '@/lib/organization-context';
 
 interface SidebarProps {
   onCreatePost?: () => void;
@@ -51,14 +52,18 @@ const getPlatformIcon = (platform: string) => {
 
 export function Sidebar({ onCreatePost }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [selectedOrgId, setSelectedOrgId] = useState<string>(() => 
-    typeof window !== 'undefined' ? localStorage.getItem('selectedOrgId') || '' : ''
+    typeof window !== 'undefined' ? getSelectedOrganizationId() || '' : ''
   );
   
   const handleOrgChange = (orgId: string) => {
     if (orgId !== selectedOrgId) {
       setSelectedOrgId(orgId);
-      localStorage.setItem('selectedOrgId', orgId);
+      // Use the organization context to trigger event
+      setSelectedOrganizationId(orgId);
+      // Refresh the current page to load new organization's data
+      router.refresh();
     }
   };
 

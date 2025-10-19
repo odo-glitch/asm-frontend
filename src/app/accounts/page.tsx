@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Sidebar } from '@/components/dashboard/Sidebar';
 import { OrganizationsAPI } from '@/lib/api/organizations';
+import { getSelectedOrganizationId, setSelectedOrganizationId } from '@/lib/organization-context';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -50,8 +51,15 @@ export default function AccountsPage() {
     try {
       const { organizations: orgs } = await orgsAPI.getUserOrganizations();
       setOrganizations(orgs);
-      if (orgs.length > 0 && !selectedOrg) {
-        setSelectedOrg(orgs[0].id);
+      
+      // Load selected org from localStorage
+      const savedOrgId = getSelectedOrganizationId();
+      if (savedOrgId && orgs.find(o => o.id === savedOrgId)) {
+        setSelectedOrg(savedOrgId);
+      } else if (orgs.length > 0 && !selectedOrg) {
+        const firstOrgId = orgs[0].id;
+        setSelectedOrg(firstOrgId);
+        setSelectedOrganizationId(firstOrgId);
       }
     } catch (error) {
       console.error('Error loading organizations:', error);
@@ -208,7 +216,10 @@ export default function AccountsPage() {
             {organizations.map((org) => (
               <button
                 key={org.id}
-                onClick={() => setSelectedOrg(org.id)}
+                onClick={() => {
+                  setSelectedOrg(org.id);
+                  setSelectedOrganizationId(org.id);
+                }}
                 className={`p-4 rounded-lg border-2 transition-all text-left ${
                   selectedOrg === org.id
                     ? 'border-blue-500 bg-blue-50'
