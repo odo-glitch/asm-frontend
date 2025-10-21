@@ -251,7 +251,7 @@ export default function LibraryPage() {
     <AppLayout>
       <Sidebar 
         accounts={accounts} 
-        onCreatePost={() => router.push('/dashboard')}
+        onCreatePost={() => router.push('/create-post')}
       />
       
       <div className="ml-64">

@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/client'
 export interface Conversation {
   id: string
   user_id: string
-  platform: 'twitter' | 'facebook' | 'linkedin' | 'instagram'
+  platform: 'twitter' | 'facebook' | 'linkedin' | 'instagram' | 'tiktok'
   customer_id: string
   customer_name: string
   customer_avatar?: string | null

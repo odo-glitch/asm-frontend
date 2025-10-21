@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/dashboard/Sidebar';
 import { SocialAccount, fetchUserSocialAccounts } from '@/lib/social-accounts';
 import { getSelectedOrganizationId } from '@/lib/organization-context';
@@ -16,6 +16,7 @@ interface SettingsContentProps {
 }
 
 export function SettingsContent({ userEmail, userId }: SettingsContentProps) {
+  const router = useRouter();
   const [accounts, setAccounts] = useState<SocialAccount[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showFacebookPageSelector, setShowFacebookPageSelector] = useState(false);
@@ -77,7 +78,7 @@ export function SettingsContent({ userEmail, userId }: SettingsContentProps) {
 
   return (
     <>
-      <Sidebar accounts={accounts} />
+      <Sidebar accounts={accounts} onCreatePost={() => router.push('/create-post')} />
       
       <div className="ml-64">
         <div className="py-10">

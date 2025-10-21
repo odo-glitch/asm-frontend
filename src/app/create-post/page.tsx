@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { X, Image as ImageIcon, Video, Calendar, Clock, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, Image as ImageIcon, Video, Calendar, Clock, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Sidebar } from '@/components/dashboard/Sidebar';
 import { SocialAccount, fetchUserSocialAccounts } from '@/lib/social-accounts';
@@ -48,6 +48,20 @@ function CreatePostContent() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showMediaLibrary, setShowMediaLibrary] = useState(false);
+  const [isRefreshingContent, setIsRefreshingContent] = useState(false);
+
+  // Function to refresh content items
+  const refreshContentItems = async () => {
+    setIsRefreshingContent(true);
+    try {
+      const fetchedContent = await fetchContentItems();
+      setContentItems(fetchedContent);
+    } catch (error) {
+      console.error('Failed to refresh content library:', error);
+    } finally {
+      setIsRefreshingContent(false);
+    }
+  };
 
   useEffect(() => {
     async function loadData() {
@@ -81,6 +95,16 @@ function CreatePostContent() {
 
     loadData();
   }, [searchParams]);
+
+  // Auto-refresh content when window regains focus
+  useEffect(() => {
+    const handleFocus = () => {
+      refreshContentItems();
+    };
+    
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, []);
 
   const togglePlatformSelection = (accountId: string) => {
     setPlatformSelections(prev =>
@@ -327,7 +351,20 @@ Make it engaging, professional, and optimized for ${platform}. Keep the core mes
 
               {/* Media Library Grid */}
               {showMediaLibrary && (
-                <div className="mt-4 grid grid-cols-3 gap-4 max-h-96 overflow-y-auto p-4 border rounded-lg">
+                <div className="mt-4 border rounded-lg">
+                  <div className="flex items-center justify-between p-3 border-b bg-gray-50">
+                    <span className="text-sm font-medium text-gray-700">Content Library</span>
+                    <button
+                      onClick={refreshContentItems}
+                      disabled={isRefreshingContent}
+                      className="flex items-center gap-1 px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded transition-colors disabled:opacity-50"
+                      title="Refresh content library"
+                    >
+                      <RefreshCw className={`w-3 h-3 ${isRefreshingContent ? 'animate-spin' : ''}`} />
+                      Refresh
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4 max-h-96 overflow-y-auto p-4">
                   {contentItems.length === 0 ? (
                     <div className="col-span-3 text-center py-8 text-gray-500">
                       No media in your library yet
@@ -368,6 +405,7 @@ Make it engaging, professional, and optimized for ${platform}. Keep the core mes
                       </button>
                     ))
                   )}
+                  </div>
                 </div>
               )}
             </div>

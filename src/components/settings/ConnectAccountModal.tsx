@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { X, Twitter, Facebook, Linkedin, Instagram } from 'lucide-react';
+import { X, Twitter, Facebook, Linkedin, Instagram, Music } from 'lucide-react';
 import { SocialAccount } from '@/lib/social-accounts';
 
 interface ConnectAccountModalProps {
@@ -43,6 +43,12 @@ const PLATFORMS: Record<string, PlatformConfig> = {
     icon: Instagram,
     bgColor: 'bg-gradient-to-r from-purple-500 to-pink-500',
     hoverColor: 'hover:from-purple-600 hover:to-pink-600'
+  },
+  tiktok: {
+    name: 'TikTok',
+    icon: Music,
+    bgColor: 'bg-black',
+    hoverColor: 'hover:bg-gray-900'
   },
   'demo-facebook-1': {
     name: 'Demo Facebook Page 1',
