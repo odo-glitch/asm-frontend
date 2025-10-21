@@ -71,7 +71,7 @@ export default function TermsPage() {
           </p>
           <ul className="list-disc list-inside space-y-2 text-gray-700 mb-6">
             <li>You grant us permission to access and manage your connected accounts</li>
-            <li>You must comply with each platform's terms of service</li>
+            <li>You must comply with each platform&apos;s terms of service</li>
             <li>You are responsible for content posted through our service</li>
             <li>You can disconnect accounts at any time in Settings</li>
           </ul>
@@ -165,7 +165,7 @@ export default function TermsPage() {
               Important Legal Notice
             </p>
             <p className="text-gray-700">
-              THE SERVICE IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND. WE DISCLAIM ALL WARRANTIES, 
+              THE SERVICE IS PROVIDED &quot;AS IS&quot; WITHOUT WARRANTIES OF ANY KIND. WE DISCLAIM ALL WARRANTIES, 
               EXPRESS OR IMPLIED, INCLUDING WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, 
               AND NON-INFRINGEMENT.
             </p>

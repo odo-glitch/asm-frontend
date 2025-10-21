@@ -23,7 +23,7 @@ export default function DataDeletionPage() {
             <ol className="list-decimal list-inside space-y-2 text-gray-700">
               <li>Log in to your account</li>
               <li>Navigate to <strong>Settings</strong></li>
-              <li>Scroll to the bottom and click <strong>"Delete Account"</strong></li>
+              <li>Scroll to the bottom and click <strong>&quot;Delete Account&quot;</strong></li>
               <li>Confirm the deletion</li>
               <li>All your data will be permanently deleted within 30 days</li>
             </ol>
@@ -57,7 +57,7 @@ export default function DataDeletionPage() {
                   support@yourdomain.com
                 </a>
               </li>
-              <li>Subject: "Data Deletion Request"</li>
+              <li>Subject: &quot;Data Deletion Request&quot;</li>
               <li>Include your account email address</li>
               <li>We will process your request within 30 days</li>
             </ul>
@@ -86,7 +86,7 @@ export default function DataDeletionPage() {
           </h2>
           
           <p className="text-gray-700 mb-4">
-            If you connected your Facebook account and want to revoke our app's access:
+            If you connected your Facebook account and want to revoke our app&apos;s access:
           </p>
           
           <ol className="list-decimal list-inside space-y-2 text-gray-700 mb-4">
@@ -97,8 +97,8 @@ export default function DataDeletionPage() {
           </ol>
 
           <p className="text-gray-700 mb-6">
-            This will immediately revoke our app's access to your Facebook data and remove all 
-            associated information from Facebook's systems.
+            This will immediately revoke our app&apos;s access to your Facebook data and remove all 
+            associated information from Facebook&apos;s systems.
           </p>
 
           <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">

@@ -157,7 +157,7 @@ export default function PrivacyPolicyPage() {
           </ul>
 
           <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">
-            9. Children's Privacy
+            9. Children&apos;s Privacy
           </h2>
 
           <p className="text-gray-700 mb-6">
