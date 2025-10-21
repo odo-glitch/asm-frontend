@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Sidebar } from '@/components/dashboard/Sidebar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -73,6 +74,7 @@ const platformColors = {
 };
 
 export default function ReviewsPage() {
+  const router = useRouter();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
@@ -197,7 +199,7 @@ export default function ReviewsPage() {
 
   return (
     <AppLayout>
-      <Sidebar />
+      <Sidebar onCreatePost={() => router.push('/create-post')} />
       
       <div className="ml-64">
         <div className="p-6 space-y-6">

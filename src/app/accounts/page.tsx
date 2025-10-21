@@ -196,7 +196,7 @@ export default function AccountsPage() {
 
   return (
     <AppLayout>
-      <Sidebar />
+      <Sidebar onCreatePost={() => router.push('/create-post')} />
       
       <div className="ml-64">
         <div className="container mx-auto py-8 px-4 max-w-6xl">

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { GoogleBusinessSelector } from '@/components/business-profile/GoogleBusinessSelector'
 import { createClient } from '@/lib/supabase/client'
-import { redirect } from 'next/navigation'
+import { redirect, useRouter } from 'next/navigation'
 import { Sidebar } from '@/components/dashboard/Sidebar'
 import { SocialAccount, fetchUserSocialAccounts } from '@/lib/social-accounts'
 import { 
@@ -118,6 +118,7 @@ const MOCKUP_REVIEWS: Review[] = [
 ]
 
 export default function BusinessProfilePage() {
+  const router = useRouter()
   const [accounts, setAccounts] = useState<SocialAccount[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null)
@@ -308,7 +309,7 @@ export default function BusinessProfilePage() {
 
       <div className="flex h-screen pt-16">
         {/* Sidebar */}
-        <Sidebar accounts={accounts} />
+        <Sidebar accounts={accounts} onCreatePost={() => router.push('/create-post')} />
 
         {/* Main Content */}
         <div className="flex-1 ml-64 p-8">
