@@ -193,8 +193,8 @@ export default function PrivacyPolicyPage() {
             If you have questions about this Privacy Policy or our data practices, contact us:
           </p>
           <ul className="list-none space-y-2 text-gray-700 mb-6">
-            <li>📧 Email: privacy@yourdomain.com</li>
-            <li>📧 Support: support@yourdomain.com</li>
+            <li>📧 Email: odo@odomarketing.com</li>
+            <li>📧 Support: odo@odomarketing.com</li>
             <li>📄 Data Deletion: <a href="/data-deletion" className="text-blue-600 hover:underline">Data Deletion Instructions</a></li>
           </ul>
 

@@ -240,8 +240,8 @@ export default function TermsPage() {
             If you have questions about these Terms, contact us:
           </p>
           <ul className="list-none space-y-2 text-gray-700 mb-6">
-            <li>📧 Email: support@yourdomain.com</li>
-            <li>📧 Legal: legal@yourdomain.com</li>
+            <li>📧 Email: odo@odomarketing.com</li>
+            <li>📧 Legal: odo@odomarketing.com</li>
             <li>📄 Privacy Policy: <a href="/privacy-policy" className="text-blue-600 hover:underline">View Privacy Policy</a></li>
             <li>📄 Data Deletion: <a href="/data-deletion" className="text-blue-600 hover:underline">View Data Deletion Instructions</a></li>
           </ul>

@@ -104,6 +104,25 @@ export function SettingsContent({ userEmail, userId }: SettingsContentProps) {
 
                 {/* Brand Profile Section */}
                 <BrandProfileSection userId={userId} />
+
+                {/* Delete Account Section */}
+                <div className="bg-white shadow rounded-lg p-6 border-l-4 border-red-500">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4">Danger Zone</h2>
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="text-lg font-medium text-red-600 mb-2">Delete Account</h3>
+                      <p className="text-gray-600 mb-4">
+                        Once you delete your account, there is no going back. Please be certain. All your data including posts, analytics, and connected accounts will be permanently deleted within 30 days.
+                      </p>
+                      <a
+                        href="/data-deletion"
+                        className="inline-flex items-center px-4 py-2 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                      >
+                        View Deletion Instructions
+                      </a>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </main>

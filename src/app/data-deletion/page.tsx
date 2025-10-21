@@ -53,8 +53,8 @@ export default function DataDeletionPage() {
             </p>
             <ul className="list-disc list-inside space-y-2 text-gray-700">
               <li>
-                Email: <a href="mailto:support@yourdomain.com" className="text-blue-600 hover:underline">
-                  support@yourdomain.com
+                Email: <a href="mailto:odo@odomarketing.com" className="text-blue-600 hover:underline">
+                  odo@odomarketing.com
                 </a>
               </li>
               <li>Subject: &quot;Data Deletion Request&quot;</li>
@@ -135,7 +135,7 @@ export default function DataDeletionPage() {
           </p>
           
           <ul className="list-none space-y-2 text-gray-700">
-            <li>📧 Email: <a href="mailto:privacy@yourdomain.com" className="text-blue-600 hover:underline">privacy@yourdomain.com</a></li>
+            <li>📧 Email: <a href="mailto:odo@odomarketing.com" className="text-blue-600 hover:underline">odo@odomarketing.com</a></li>
             <li>📄 Privacy Policy: <a href="/privacy-policy" className="text-blue-600 hover:underline">View our Privacy Policy</a></li>
             <li>📋 Terms of Service: <a href="/terms" className="text-blue-600 hover:underline">View our Terms</a></li>
           </ul>
