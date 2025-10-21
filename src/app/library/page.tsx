@@ -282,8 +282,8 @@ export default function LibraryPage() {
                 Upload Content
               </button>
               <button
-                onClick={() => router.push('/dashboard')}
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                onClick={() => router.push('/create-post')}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
                 <Plus className="w-4 h-4" />
                 Create Post
