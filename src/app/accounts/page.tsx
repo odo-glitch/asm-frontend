@@ -2,8 +2,10 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { useRouter } from 'next/navigation';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Sidebar } from '@/components/dashboard/Sidebar';
+import { useMobileMenu } from '@/components/layout/AppLayout';
 import { OrganizationsAPI } from '@/lib/api/organizations';
 import { getSelectedOrganizationId, setSelectedOrganizationId } from '@/lib/organization-context';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +13,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Trash2, Crown, Shield, User, Eye } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 
 interface TeamMember {
@@ -39,6 +40,7 @@ export default function AccountsPage() {
   const { toast } = useToast();
   const supabase = createClient();
   const orgsAPI = useMemo(() => new OrganizationsAPI(supabase), [supabase]);
+  const { isMobileMenuOpen, setIsMobileMenuOpen } = useMobileMenu();
 
   const getCurrentUser = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -196,15 +198,43 @@ export default function AccountsPage() {
 
   return (
     <AppLayout>
-      <Sidebar onCreatePost={() => router.push('/create-post')} />
-      
-      <div className="ml-64">
+      <Sidebar 
+        accounts={[]} 
+        onCreatePost={() => router.push('/create-post')} 
+        isOpen={isMobileMenuOpen} 
+        onClose={() => setIsMobileMenuOpen(false)} 
+      />
+      <div className="lg:ml-64">
         <div className="container mx-auto py-8 px-4 max-w-6xl">
           <div className="mb-8">
             <h1 className="text-3xl font-bold mb-2">Account Management</h1>
             <p className="text-gray-600">Manage your organizations and team members</p>
           </div>
 
+          {/* Organization Selector */}
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle>Select Organization</CardTitle>
+              <CardDescription>Choose which organization to manage</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {organizations.map((org) => (
+                  <button
+                    key={org.id}
+                    onClick={() => {
+                      setSelectedOrg(org.id);
+                      setSelectedOrganizationId(org.id);
+                    }}
+                    className={`p-4 rounded-lg border-2 transition-all text-left ${
+                      selectedOrg === org.id
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <h3 className="font-semibold">{org.name}</h3>
+                    <p className="text-sm text-gray-500">{org.slug}</p>
+                    <Badge className="mt-2" variant={getRoleBadgeVariant(org.role)}>
       {/* Organization Selector */}
       <Card className="mb-8">
         <CardHeader>

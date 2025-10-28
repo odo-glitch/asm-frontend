@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { Sidebar } from '@/components/dashboard/Sidebar'
+import { useMobileMenu } from '@/components/layout/AppLayout'
 import { Card } from '@/components/ui/card'
 import { SocialAccount, fetchUserSocialAccounts } from '@/lib/social-accounts'
 import { 
@@ -69,6 +70,8 @@ function ContentTypeIcon({ type }: { type: string }) {
 }
 
 export default function LibraryPage() {
+  const router = useRouter()
+  const { isMobileMenuOpen, setIsMobileMenuOpen } = useMobileMenu()
   const [accounts, setAccounts] = useState<SocialAccount[]>([])
   const [, setIsLoading] = useState(true) // isLoading - will be used for loading state
   const [selectedOrgId, setSelectedOrgId] = useState<string | null>(() => 
@@ -79,7 +82,6 @@ export default function LibraryPage() {
     visibility: 'organization'
   })
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const router = useRouter()
   
   const [library, setLibrary] = useState<ContentLibraryState>({
     items: [],
@@ -252,9 +254,10 @@ export default function LibraryPage() {
       <Sidebar 
         accounts={accounts} 
         onCreatePost={() => router.push('/create-post')}
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
       />
-      
-      <div className="ml-64">
+      <div className="lg:ml-64 bg-gray-50 min-h-screen">
         <div className="p-6 space-y-6">
           {/* Header */}
           <div className="flex justify-between items-center">

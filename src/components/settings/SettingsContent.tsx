@@ -11,6 +11,7 @@ import { BrandProfileSection } from './BrandProfileSection';
 import { FacebookPageSelector } from './FacebookPageSelector';
 import { LinkedInOrganizationSelector } from './LinkedInOrganizationSelector';
 import { Trash2 } from 'lucide-react';
+import { useMobileMenu } from '@/components/layout/AppLayout';
 
 interface SettingsContentProps {
   userEmail: string;
@@ -19,6 +20,7 @@ interface SettingsContentProps {
 
 export function SettingsContent({ userEmail, userId }: SettingsContentProps) {
   const router = useRouter();
+  const { isMobileMenuOpen, setIsMobileMenuOpen } = useMobileMenu();
   const [accounts, setAccounts] = useState<SocialAccount[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showFacebookPageSelector, setShowFacebookPageSelector] = useState(false);
@@ -116,9 +118,14 @@ export function SettingsContent({ userEmail, userId }: SettingsContentProps) {
 
   return (
     <>
-      <Sidebar accounts={accounts} onCreatePost={() => router.push('/create-post')} />
+      <Sidebar 
+        accounts={accounts} 
+        onCreatePost={() => router.push('/create-post')}
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+      />
       
-      <div className="ml-64">
+      <div className="lg:ml-64">
         <div className="py-10">
           <header>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

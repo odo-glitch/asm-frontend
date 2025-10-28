@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { redirect, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
+import { AppLayout } from '@/components/layout/AppLayout'
 import { Sidebar } from '@/components/dashboard/Sidebar'
+import { useMobileMenu } from '@/components/layout/AppLayout'
 import { SocialAccount, fetchUserSocialAccounts } from '@/lib/social-accounts'
 import { Send, User, Instagram } from 'lucide-react'
 import Logo from '@/components/Logo'
@@ -226,7 +227,8 @@ function generateMockMessages(conversationId: string): Message[] {
 
 export default function InboxPage() {
   const router = useRouter()
-  const [accounts, setAccounts] = useState<SocialAccount[]>([])
+  const { isMobileMenuOpen, setIsMobileMenuOpen } = useMobileMenu()
+  const [accounts, setAccounts] = useState<SocialAccount[]>([]);
   const [isLoading, setIsLoading] = useState(true)
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null)
   const [conversations, setConversations] = useState<Conversation[]>([])
@@ -494,10 +496,15 @@ export default function InboxPage() {
 
       <div className="flex h-screen pt-16">
         {/* Sidebar */}
-        <Sidebar accounts={accounts} onCreatePost={() => router.push('/create-post')} />
+        <Sidebar 
+          accounts={accounts} 
+          onCreatePost={() => router.push('/create-post')}
+          isOpen={isMobileMenuOpen}
+          onClose={() => setIsMobileMenuOpen(false)}
+        />
 
         {/* Main Content - Three Panel Layout */}
-        <div className="flex-1 ml-64 flex flex-col">
+        <div className="flex-1 lg:ml-64 flex flex-col">
           {/* Connection Status Banner */}
           {facebookStatus && facebookStatus !== 'success' && (
             <div className="bg-blue-50 border-b border-blue-200 px-4 py-3">

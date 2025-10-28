@@ -1,15 +1,15 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { Sidebar } from '@/components/dashboard/Sidebar';
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { AppLayout } from '@/components/layout/AppLayout'
+import { Sidebar } from '@/components/dashboard/Sidebar'
+import { useMobileMenu } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AIButton } from '@/components/ui/ai-button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Textarea } from '@/components/ui/textarea';
 import { 
   Star, 
   MessageSquare, 
@@ -74,7 +74,8 @@ const platformColors = {
 };
 
 export default function ReviewsPage() {
-  const router = useRouter();
+  const router = useRouter()
+  const { isMobileMenuOpen, setIsMobileMenuOpen } = useMobileMenu()
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
@@ -199,9 +200,12 @@ export default function ReviewsPage() {
 
   return (
     <AppLayout>
-      <Sidebar onCreatePost={() => router.push('/create-post')} />
-      
-      <div className="ml-64">
+      <Sidebar 
+        onCreatePost={() => router.push('/create-post')}
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+      />
+      <div className="lg:ml-64 bg-gray-50 min-h-screen">
         <div className="p-6 space-y-6">
           {/* Demo Notice Banner */}
           <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">

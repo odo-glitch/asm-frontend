@@ -11,6 +11,7 @@ import { getUserProfile, getDisplayName, UserProfile } from '@/lib/profile';
 import { ScheduledPost, fetchScheduledPosts } from '@/lib/scheduled-posts';
 import { Announcement, fetchAnnouncements, createAnnouncement, deleteAnnouncement } from '@/lib/announcements';
 import { getSelectedOrganizationId } from '@/lib/organization-context';
+import { useMobileMenu } from '@/components/layout/AppLayout';
 
 interface DashboardContentProps {
   userEmail: string;
@@ -19,6 +20,7 @@ interface DashboardContentProps {
 
 export function DashboardContent({ userEmail, userId }: DashboardContentProps) {
   const router = useRouter();
+  const { isMobileMenuOpen, setIsMobileMenuOpen } = useMobileMenu();
   const [accounts, setAccounts] = useState<SocialAccount[]>([]);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [scheduledPosts, setScheduledPosts] = useState<ScheduledPost[]>([]);
@@ -138,9 +140,11 @@ export function DashboardContent({ userEmail, userId }: DashboardContentProps) {
       <Sidebar 
         accounts={accounts} 
         onCreatePost={() => router.push('/create-post')}
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
       />
       
-      <div className="ml-64 bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen">
+      <div className="lg:ml-64 bg-gradient-to-b from-gray-100 to-gray-200 min-h-screen">
         <div className="py-8">
           {/* Header */}
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">

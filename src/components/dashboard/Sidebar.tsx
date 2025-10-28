@@ -11,11 +11,12 @@ import {
   Settings,
   MessageSquare,
   Building,
-  Star
+  Star,
+  X
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SocialAccount } from '@/lib/social-accounts';
 import { BrandSwitcher } from './BrandSwitcher';
 import { setSelectedOrganizationId, getSelectedOrganizationId } from '@/lib/organization-context';
@@ -23,6 +24,8 @@ import { setSelectedOrganizationId, getSelectedOrganizationId } from '@/lib/orga
 interface SidebarProps {
   onCreatePost?: () => void;
   accounts?: SocialAccount[];
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
 // Real platform logo SVG components
@@ -56,12 +59,19 @@ const getPlatformIcon = (platform: string) => {
   return <Twitter className="h-5 w-5 text-gray-500" />;
 };
 
-export function Sidebar({ onCreatePost }: SidebarProps) {
+export function Sidebar({ onCreatePost, isOpen = false, onClose }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [selectedOrgId, setSelectedOrgId] = useState<string>(() => 
     typeof window !== 'undefined' ? getSelectedOrganizationId() || '' : ''
   );
+  
+  // Close sidebar when route changes on mobile
+  useEffect(() => {
+    if (onClose && isOpen) {
+      onClose();
+    }
+  }, [pathname]);
   
   const handleOrgChange = (orgId: string) => {
     if (orgId !== selectedOrgId) {
@@ -84,7 +94,21 @@ export function Sidebar({ onCreatePost }: SidebarProps) {
   `;
 
   return (
-    <aside className="fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 bg-white border-r border-gray-200 overflow-y-auto flex flex-col">
+    <>
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+      
+      {/* Sidebar */}
+      <aside className={`
+        fixed top-16 h-[calc(100vh-4rem)] w-64 bg-white border-r border-gray-200 overflow-y-auto flex flex-col z-50 transition-transform duration-300 ease-in-out
+        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+        lg:translate-x-0 lg:left-0
+      `}>
       {/* Brand Switcher at the top */}
       <BrandSwitcher 
         currentOrgId={selectedOrgId}
@@ -171,6 +195,15 @@ export function Sidebar({ onCreatePost }: SidebarProps) {
           </div>
         </div>
       </nav>
+      
+      {/* Close button for mobile */}
+      <button
+        onClick={onClose}
+        className="lg:hidden absolute top-4 right-4 p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
+      >
+        <X className="h-5 w-5" />
+      </button>
     </aside>
+    </>
   );
 }

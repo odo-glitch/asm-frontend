@@ -1,11 +1,26 @@
 'use client';
 
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState, createContext, useContext } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Menu } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import Logo from '@/components/Logo';
+
+// Create context for mobile menu state
+const MobileMenuContext = createContext<{
+  isMobileMenuOpen: boolean;
+  setIsMobileMenuOpen: (open: boolean) => void;
+} | null>(null);
+
+export const useMobileMenu = () => {
+  const context = useContext(MobileMenuContext);
+  if (!context) {
+    throw new Error('useMobileMenu must be used within AppLayout');
+  }
+  return context;
+};
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -17,6 +32,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -60,12 +76,22 @@ export function AppLayout({ children }: AppLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            {/* Logo */}
-            <div className="flex items-center">
+    <MobileMenuContext.Provider value={{ isMobileMenuOpen, setIsMobileMenuOpen }}>
+      <div className="min-h-screen bg-gray-100">
+        <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-b border-gray-200 shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between h-16">
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="lg:hidden flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 transition-colors"
+                aria-label="Toggle menu"
+              >
+                <Menu className="h-6 w-6 text-gray-700" />
+              </button>
+              
+              {/* Logo */}
+              <div className="flex items-center">
               <Link href="/dashboard" className="flex items-center space-x-3 group">
                 <div className="relative">
                   <div className="absolute inset-0 blur-xl bg-gradient-to-r from-indigo-500 to-purple-500 opacity-20 group-hover:opacity-40 transition-opacity"></div>
@@ -220,9 +246,10 @@ export function AppLayout({ children }: AppLayoutProps) {
         </div>
       </nav>
       
-      <div className="pt-16">
-        {children}
+        <div className="pt-16">
+          {children}
+        </div>
       </div>
-    </div>
+    </MobileMenuContext.Provider>
   );
 }

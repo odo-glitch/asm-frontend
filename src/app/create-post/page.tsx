@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { X, Image as ImageIcon, Video, Calendar, Clock, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { Sidebar } from '@/components/dashboard/Sidebar';
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { AppLayout } from '@/components/layout/AppLayout'
+import { Sidebar } from '@/components/dashboard/Sidebar'
+import { useMobileMenu } from '@/components/layout/AppLayout';
 import { SocialAccount, fetchUserSocialAccounts } from '@/lib/social-accounts';
 import { ContentItem, fetchContentItems } from '@/lib/content-library';
 import { createScheduledPost } from '@/lib/scheduled-posts';
@@ -18,11 +18,11 @@ interface PlatformSelection {
   selected: boolean;
 }
 
-function CreatePostContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  
-  // Mode toggles
+export default function CreatePostPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const { isMobileMenuOpen, setIsMobileMenuOpen } = useMobileMenu()
+  const [accounts, setAccounts] = useState<SocialAccount[]>([]);
   const [isAIMode, setIsAIMode] = useState(false);
   const [isScheduled, setIsScheduled] = useState(true);
   const [isPromptExpanded, setIsPromptExpanded] = useState(true);
@@ -38,7 +38,6 @@ function CreatePostContent() {
   const [lengthPreference, setLengthPreference] = useState<'short' | 'medium' | 'long'>('medium');
   
   const [content, setContent] = useState('');
-  const [accounts, setAccounts] = useState<SocialAccount[]>([]);
   const [platformSelections, setPlatformSelections] = useState<PlatformSelection[]>([]);
   const [contentItems, setContentItems] = useState<ContentItem[]>([]);
   const [selectedMedia, setSelectedMedia] = useState<ContentItem | null>(null);
@@ -235,34 +234,12 @@ Make it engaging, professional, and optimized for ${platform}. Keep the core mes
   return (
     <AppLayout>
       <Sidebar 
-        accounts={accounts}
-        onCreatePost={() => router.push('/create-post')}
+        accounts={accounts} 
+        onCreatePost={() => {}}
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
       />
-      
-      <div className="ml-64">
-        <div className="bg-white sticky top-16 z-10">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              <h1 className="text-2xl font-bold text-gray-900">Create Post</h1>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => router.push('/dashboard')}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSchedulePost}
-                  disabled={isSubmitting || selectedCount === 0 || (isAIMode ? !(generatedContent || primaryMessage).trim() : !content.trim()) || (isScheduled && (!scheduledDate || !scheduledTime))}
-                  className="px-6 py-3 text-base font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all"
-                >
-                  {isSubmitting ? (isScheduled ? 'Scheduling...' : 'Posting...') : (isScheduled ? 'Schedule Post' : 'Post Now')}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
+      <div className="lg:ml-64 bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 min-h-screen">
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {error && (
@@ -454,7 +431,7 @@ Make it engaging, professional, and optimized for ${platform}. Keep the core mes
               </div>
 
               {/* AI Enhancement Section */}
-              <div className="mb-4 p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-100">
+              <div className="mb-4 p-4 bg-gradient-to-r from-purple-50 via-blue-50 to-pink-50 rounded-lg border border-purple-100">
                 <p className="text-sm text-gray-700 mb-3">
                   Fill in the optional fields below to help AI enhance your content
                 </p>

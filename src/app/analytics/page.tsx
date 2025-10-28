@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { Sidebar } from '@/components/dashboard/Sidebar'
+import { useMobileMenu } from '@/components/layout/AppLayout'
 import { Card } from '@/components/ui/card'
 import { SocialAccount, fetchUserSocialAccounts } from '@/lib/social-accounts'
 import { 
@@ -83,6 +84,7 @@ function PlatformIcon({ platform }: { platform: string }) {
 
 export default function AnalyticsPage() {
   const router = useRouter()
+  const { isMobileMenuOpen, setIsMobileMenuOpen } = useMobileMenu()
   const [timeframe, setTimeframe] = useState('30days')
   const [accounts, setAccounts] = useState<SocialAccount[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -202,9 +204,11 @@ export default function AnalyticsPage() {
       <Sidebar 
         accounts={accounts} 
         onCreatePost={() => router.push('/create-post')}
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
       />
       
-      <div className="ml-64">
+      <div className="lg:ml-64">
         <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">

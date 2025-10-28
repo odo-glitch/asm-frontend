@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { Sidebar } from '@/components/dashboard/Sidebar'
+import { useMobileMenu } from '@/components/layout/AppLayout'
 import { Card } from '@/components/ui/card'
 import { SocialAccount, fetchUserSocialAccounts } from '@/lib/social-accounts'
 import { fetchScheduledPosts, ScheduledPost, updateScheduledPost, deleteScheduledPost, createScheduledPost } from '@/lib/scheduled-posts'
@@ -398,6 +399,7 @@ function DayManagementModal({ isOpen, onClose, date, posts, accounts, onRefresh,
 
 export default function CalendarPage() {
   const router = useRouter()
+  const { isMobileMenuOpen, setIsMobileMenuOpen } = useMobileMenu()
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false)
@@ -533,9 +535,10 @@ export default function CalendarPage() {
       <Sidebar 
         accounts={accounts} 
         onCreatePost={() => router.push('/create-post')}
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
       />
-      
-      <div className="ml-64">
+      <div className="lg:ml-64 bg-gray-50 min-h-screen">
         <div className="p-6 space-y-6">
           {/* Header */}
           <div className="flex justify-between items-center">
