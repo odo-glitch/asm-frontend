@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { AIButton } from '@/components/ui/ai-button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Textarea } from '@/components/ui/textarea';
 import { 
   Star, 
   MessageSquare, 
