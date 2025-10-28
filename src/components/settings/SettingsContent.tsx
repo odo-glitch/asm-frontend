@@ -9,6 +9,7 @@ import { PersonalProfileSection } from './PersonalProfileSection';
 import { ConnectedAccountsSection } from './ConnectedAccountsSection';
 import { BrandProfileSection } from './BrandProfileSection';
 import { FacebookPageSelector } from './FacebookPageSelector';
+import { LinkedInOrganizationSelector } from './LinkedInOrganizationSelector';
 import { Trash2 } from 'lucide-react';
 
 interface SettingsContentProps {
@@ -21,6 +22,7 @@ export function SettingsContent({ userEmail, userId }: SettingsContentProps) {
   const [accounts, setAccounts] = useState<SocialAccount[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showFacebookPageSelector, setShowFacebookPageSelector] = useState(false);
+  const [showLinkedInOrganizationSelector, setShowLinkedInOrganizationSelector] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
@@ -42,6 +44,13 @@ export function SettingsContent({ userEmail, userId }: SettingsContentProps) {
       if (platform === 'facebook') {
         setTimeout(() => {
           setShowFacebookPageSelector(true);
+        }, 500);
+      }
+      
+      // Show LinkedIn organization selector if LinkedIn was just connected
+      if (platform === 'linkedin') {
+        setTimeout(() => {
+          setShowLinkedInOrganizationSelector(true);
         }, 500);
       }
       
@@ -173,6 +182,14 @@ export function SettingsContent({ userEmail, userId }: SettingsContentProps) {
         onOpenChange={setShowFacebookPageSelector}
         userId={userId}
         onPageSelected={loadAccounts}
+      />
+
+      {/* LinkedIn Organization Selector Modal */}
+      <LinkedInOrganizationSelector
+        open={showLinkedInOrganizationSelector}
+        onOpenChange={setShowLinkedInOrganizationSelector}
+        userId={userId}
+        onSelected={loadAccounts}
       />
 
       {/* Delete Account Confirmation Modal */}
