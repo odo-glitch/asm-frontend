@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { Sidebar } from '@/components/dashboard/Sidebar'
 import { useMobileMenu } from '@/components/layout/AppLayout'
