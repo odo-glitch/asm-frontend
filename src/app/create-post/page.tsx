@@ -10,6 +10,7 @@ import { ContentItem, fetchContentItems } from '@/lib/content-library';
 import { createScheduledPost } from '@/lib/scheduled-posts';
 import { Checkbox } from '@/components/ui/checkbox';
 import { AIButton } from '@/components/ui/ai-button';
+import { X, ImageIcon, Video, RefreshCw, ChevronUp, ChevronDown, Calendar, Clock } from 'lucide-react';
 
 interface PlatformSelection {
   accountId: string;
@@ -745,13 +746,5 @@ Make it engaging, professional, and optimized for ${platform}. Keep the core mes
       </div>
       </div>
     </AppLayout>
-  );
-}
-
-export default function CreatePostPage() {
-  return (
-    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
-      <CreatePostContent />
-    </Suspense>
   );
 }

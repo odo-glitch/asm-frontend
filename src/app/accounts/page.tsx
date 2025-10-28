@@ -235,40 +235,16 @@ export default function AccountsPage() {
                     <h3 className="font-semibold">{org.name}</h3>
                     <p className="text-sm text-gray-500">{org.slug}</p>
                     <Badge className="mt-2" variant={getRoleBadgeVariant(org.role)}>
-      {/* Organization Selector */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Select Organization</CardTitle>
-          <CardDescription>Choose which organization to manage</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {organizations.map((org) => (
-              <button
-                key={org.id}
-                onClick={() => {
-                  setSelectedOrg(org.id);
-                  setSelectedOrganizationId(org.id);
-                }}
-                className={`p-4 rounded-lg border-2 transition-all text-left ${
-                  selectedOrg === org.id
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <h3 className="font-semibold">{org.name}</h3>
-                <p className="text-sm text-gray-500">{org.slug}</p>
-                <Badge className="mt-2" variant={getRoleBadgeVariant(org.role)}>
-                  <span className="flex items-center gap-1">
-                    {getRoleIcon(org.role)}
-                    {org.role}
-                  </span>
-                </Badge>
-              </button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+                      <span className="flex items-center gap-1">
+                        {getRoleIcon(org.role)}
+                        {org.role}
+                      </span>
+                    </Badge>
+                  </button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
 
       {/* Team Members Section */}
       {selectedOrg && (
