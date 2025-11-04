@@ -163,13 +163,45 @@ export async function uploadContent(
 export async function deleteContentItem(id: string): Promise<void> {
   const supabase = createClient()
   
+  // First, get the content item to retrieve the file URL
+  const { data: item, error: fetchError } = await supabase
+    .from('content_library')
+    .select('url')
+    .eq('id', id)
+    .single()
+
+  if (fetchError) {
+    console.error('Error fetching content item for deletion:', fetchError)
+    throw fetchError
+  }
+
+  // Extract the file path from the URL
+  // URL format: https://{project}.supabase.co/storage/v1/object/public/content-library/{path}
+  if (item?.url) {
+    const urlParts = item.url.split('/content-library/')
+    if (urlParts.length > 1) {
+      const filePath = decodeURIComponent(urlParts[1])
+      
+      // Delete the file from storage
+      const { error: storageError } = await supabase.storage
+        .from('content-library')
+        .remove([filePath])
+
+      if (storageError) {
+        console.error('Error deleting file from storage:', storageError)
+        // Continue with database deletion even if storage deletion fails
+      }
+    }
+  }
+
+  // Delete the database record
   const { error } = await supabase
     .from('content_library')
     .delete()
     .eq('id', id)
 
   if (error) {
-    console.error('Error deleting content item:', error)
+    console.error('Error deleting content item from database:', error)
     throw error
   }
 }
