@@ -2,9 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { AppLayout } from '@/components/layout/AppLayout'
+import { AppLayout, useMobileMenu } from '@/components/layout/AppLayout'
 import { Sidebar } from '@/components/dashboard/Sidebar'
-import { useMobileMenu } from '@/components/layout/AppLayout'
 import { Card } from '@/components/ui/card'
 import { SocialAccount, fetchUserSocialAccounts } from '@/lib/social-accounts'
 import { 
@@ -69,7 +68,7 @@ function ContentTypeIcon({ type }: { type: string }) {
   }
 }
 
-export default function LibraryPage() {
+function LibraryContent() {
   const router = useRouter()
   const { isMobileMenuOpen, setIsMobileMenuOpen } = useMobileMenu()
   const [accounts, setAccounts] = useState<SocialAccount[]>([])
@@ -250,7 +249,7 @@ export default function LibraryPage() {
   })
 
   return (
-    <AppLayout>
+    <>
       <Sidebar 
         accounts={accounts} 
         onCreatePost={() => router.push('/create-post')}
@@ -593,6 +592,14 @@ export default function LibraryPage() {
           </div>
         )}
       </div>
+    </>
+  )
+}
+
+export default function LibraryPage() {
+  return (
+    <AppLayout>
+      <LibraryContent />
     </AppLayout>
   )
 }

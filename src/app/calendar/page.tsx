@@ -2,9 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { AppLayout } from '@/components/layout/AppLayout'
+import { AppLayout, useMobileMenu } from '@/components/layout/AppLayout'
 import { Sidebar } from '@/components/dashboard/Sidebar'
-import { useMobileMenu } from '@/components/layout/AppLayout'
 import { Card } from '@/components/ui/card'
 import { SocialAccount, fetchUserSocialAccounts } from '@/lib/social-accounts'
 import { fetchScheduledPosts, ScheduledPost, updateScheduledPost, deleteScheduledPost, createScheduledPost } from '@/lib/scheduled-posts'
@@ -397,7 +396,7 @@ function DayManagementModal({ isOpen, onClose, date, posts, accounts, onRefresh,
   )
 }
 
-export default function CalendarPage() {
+function CalendarContent() {
   const router = useRouter()
   const { isMobileMenuOpen, setIsMobileMenuOpen } = useMobileMenu()
   const [currentDate, setCurrentDate] = useState(new Date())
@@ -531,7 +530,7 @@ export default function CalendarPage() {
   const monthName = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
 
   return (
-    <AppLayout>
+    <>
       <Sidebar 
         accounts={accounts} 
         onCreatePost={() => router.push('/create-post')}
@@ -679,6 +678,14 @@ export default function CalendarPage() {
         onRefresh={handleRefreshPosts}
         router={router}
       />
+    </>
+  )
+}
+
+export default function CalendarPage() {
+  return (
+    <AppLayout>
+      <CalendarContent />
     </AppLayout>
   )
 }

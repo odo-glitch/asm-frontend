@@ -2,9 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { AppLayout } from '@/components/layout/AppLayout'
-import { Sidebar } from '@/components/dashboard/Sidebar'
-import { useMobileMenu } from '@/components/layout/AppLayout';
+import { AppLayout, useMobileMenu } from '@/components/layout/AppLayout'
+import { Sidebar } from '@/components/dashboard/Sidebar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AIButton } from '@/components/ui/ai-button';
@@ -74,7 +73,7 @@ const platformColors = {
   yelp: 'bg-gray-50 text-gray-700 border-gray-200'
 };
 
-export default function ReviewsPage() {
+function ReviewsContent() {
   const router = useRouter()
   const { isMobileMenuOpen, setIsMobileMenuOpen } = useMobileMenu()
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -200,7 +199,7 @@ export default function ReviewsPage() {
   const unrepliedCount = reviews.filter(r => !r.replied).length;
 
   return (
-    <AppLayout>
+    <>
       <Sidebar 
         onCreatePost={() => router.push('/create-post')}
         isOpen={isMobileMenuOpen}
@@ -553,6 +552,14 @@ export default function ReviewsPage() {
           </div>
         </div>
       </div>
+    </>
+  );
+}
+
+export default function ReviewsPage() {
+  return (
+    <AppLayout>
+      <ReviewsContent />
     </AppLayout>
   );
 }

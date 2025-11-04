@@ -2,9 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { AppLayout } from '@/components/layout/AppLayout'
-import { Sidebar } from '@/components/dashboard/Sidebar'
-import { useMobileMenu } from '@/components/layout/AppLayout';
+import { AppLayout, useMobileMenu } from '@/components/layout/AppLayout'
+import { Sidebar } from '@/components/dashboard/Sidebar';
 import { SocialAccount, fetchUserSocialAccounts } from '@/lib/social-accounts';
 import { ContentItem, fetchContentItems } from '@/lib/content-library';
 import { createScheduledPost } from '@/lib/scheduled-posts';
@@ -19,7 +18,7 @@ interface PlatformSelection {
   selected: boolean;
 }
 
-export default function CreatePostPage() {
+function CreatePostContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { isMobileMenuOpen, setIsMobileMenuOpen } = useMobileMenu()
@@ -233,7 +232,7 @@ Make it engaging, professional, and optimized for ${platform}. Keep the core mes
   const selectedCount = platformSelections.filter(p => p.selected).length;
 
   return (
-    <AppLayout>
+    <>
       <Sidebar 
         accounts={accounts} 
         onCreatePost={() => {}}
@@ -745,6 +744,14 @@ Make it engaging, professional, and optimized for ${platform}. Keep the core mes
         </div>
       </div>
       </div>
+    </>
+  );
+}
+
+export default function CreatePostPage() {
+  return (
+    <AppLayout>
+      <CreatePostContent />
     </AppLayout>
   );
 }

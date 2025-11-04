@@ -3,9 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useRouter, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { AppLayout } from '@/components/layout/AppLayout'
+import { AppLayout, useMobileMenu } from '@/components/layout/AppLayout'
 import { Sidebar } from '@/components/dashboard/Sidebar'
-import { useMobileMenu } from '@/components/layout/AppLayout'
 import { SocialAccount, fetchUserSocialAccounts } from '@/lib/social-accounts'
 import { Send, User, Instagram } from 'lucide-react'
 import Logo from '@/components/Logo'
@@ -226,7 +225,7 @@ function generateMockMessages(conversationId: string): Message[] {
   return messages[conversationId] || []
 }
 
-export default function InboxPage() {
+function InboxContent() {
   const router = useRouter()
   const { isMobileMenuOpen, setIsMobileMenuOpen } = useMobileMenu()
   const [accounts, setAccounts] = useState<SocialAccount[]>([]);
@@ -474,6 +473,7 @@ export default function InboxPage() {
   }
 
   return (
+    <>
     <div className="min-h-screen bg-gray-100">
       {/* Navigation */}
       <nav className="bg-white shadow fixed top-0 left-0 right-0 z-10">
@@ -711,5 +711,14 @@ export default function InboxPage() {
         </div>
       </div>
     </div>
+    </>
+  )
+}
+
+export default function InboxPage() {
+  return (
+    <AppLayout>
+      <InboxContent />
+    </AppLayout>
   )
 }
