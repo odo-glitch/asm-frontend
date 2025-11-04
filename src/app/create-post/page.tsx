@@ -28,6 +28,11 @@ function CreatePostContent() {
   const [isPromptExpanded, setIsPromptExpanded] = useState(true);
   const [generatedContent, setGeneratedContent] = useState('');
   
+  // Get selected organization ID from localStorage (same as library page)
+  const [selectedOrgId] = useState<string | null>(() => 
+    typeof window !== 'undefined' ? localStorage.getItem('selectedOrgId') : null
+  );
+  
   // AI mode fields
   const [postTitle, setPostTitle] = useState('');
   const [primaryMessage, setPrimaryMessage] = useState('');
@@ -53,7 +58,7 @@ function CreatePostContent() {
   const refreshContentItems = async () => {
     setIsRefreshingContent(true);
     try {
-      const fetchedContent = await fetchContentItems();
+      const fetchedContent = await fetchContentItems(selectedOrgId);
       setContentItems(fetchedContent);
     } catch (error) {
       console.error('Failed to refresh content library:', error);
@@ -67,7 +72,7 @@ function CreatePostContent() {
       try {
         const [fetchedAccounts, fetchedContent] = await Promise.all([
           fetchUserSocialAccounts(),
-          fetchContentItems()
+          fetchContentItems(selectedOrgId)
         ]);
         
         setAccounts(fetchedAccounts);
@@ -93,7 +98,7 @@ function CreatePostContent() {
     }
 
     loadData();
-  }, [searchParams]);
+  }, [searchParams, selectedOrgId]);
 
   // Auto-refresh content when window regains focus
   useEffect(() => {
@@ -103,6 +108,7 @@ function CreatePostContent() {
     
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const togglePlatformSelection = (accountId: string) => {
