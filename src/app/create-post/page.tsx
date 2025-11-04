@@ -746,6 +746,25 @@ Make it engaging, professional, and optimized for ${platform}. Keep the core mes
               )}
             </div>
 
+            {/* Submit Button */}
+            <button
+              onClick={handleSchedulePost}
+              disabled={isSubmitting || selectedCount === 0 || (!content && !generatedContent && !primaryMessage) || (isScheduled && (!scheduledDate || !scheduledTime))}
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold py-4 px-6 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isSubmitting ? (
+                <>
+                  <RefreshCw className="w-5 h-5 animate-spin" />
+                  Scheduling...
+                </>
+              ) : (
+                <>
+                  <Calendar className="w-5 h-5" />
+                  {isScheduled ? 'Schedule Post' : 'Post Now'}
+                </>
+              )}
+            </button>
+
           </div>
         </div>
       </div>
