@@ -2,9 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { AppLayout } from '@/components/layout/AppLayout'
+import { AppLayout, useMobileMenu } from '@/components/layout/AppLayout'
 import { Sidebar } from '@/components/dashboard/Sidebar'
-import { useMobileMenu } from '@/components/layout/AppLayout'
 import { Card } from '@/components/ui/card'
 import { SocialAccount, fetchUserSocialAccounts } from '@/lib/social-accounts'
 import { 
@@ -82,7 +81,7 @@ function PlatformIcon({ platform }: { platform: string }) {
   return icons[platform as keyof typeof icons] || null
 }
 
-export default function AnalyticsPage() {
+function AnalyticsContent() {
   const router = useRouter()
   const { isMobileMenuOpen, setIsMobileMenuOpen } = useMobileMenu()
   const [timeframe, setTimeframe] = useState('30days')
@@ -200,7 +199,7 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <AppLayout>
+    <>
       <Sidebar 
         accounts={accounts} 
         onCreatePost={() => router.push('/create-post')}
@@ -416,6 +415,14 @@ export default function AnalyticsPage() {
       )}
     </div>
       </div>
+    </>
+  )
+}
+
+export default function AnalyticsPage() {
+  return (
+    <AppLayout>
+      <AnalyticsContent />
     </AppLayout>
   )
 }
