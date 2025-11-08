@@ -83,9 +83,20 @@ export function ConnectAccountModal({ isOpen, onClose, existingAccounts, userId,
         return;
       }
       
+      // Get current organization ID
+      const { getSelectedOrganizationId } = await import('@/lib/organization-context');
+      const organizationId = getSelectedOrganizationId();
+      
+      if (!organizationId) {
+        setError('Please select an organization before connecting accounts');
+        setLoading(null);
+        return;
+      }
+      
       // Redirect to backend OAuth endpoint for real accounts
       const params = new URLSearchParams({
         userId,
+        organizationId,
         redirect: `${window.location.origin}/settings`
       });
       
