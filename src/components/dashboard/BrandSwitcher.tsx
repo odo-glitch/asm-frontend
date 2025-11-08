@@ -183,6 +183,30 @@ export function BrandSwitcher({ currentOrgId, onOrgChange }: BrandSwitcherProps)
       {isOpen && (
         <div className="absolute top-full left-0 w-full bg-white border border-gray-200 rounded-b-lg shadow-lg z-50">
           <div className="max-h-64 overflow-y-auto">
+            {/* Personal Account Option */}
+            <button
+              onClick={() => {
+                localStorage.removeItem('selectedOrgId');
+                setCurrentOrg(null);
+                setIsOpen(false);
+                window.dispatchEvent(new CustomEvent('organizationChanged', { detail: { orgId: null } }));
+                if (onOrgChange) onOrgChange('');
+              }}
+              className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100"
+            >
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <Building className="h-6 w-6 text-gray-400" />
+                <div className="text-left">
+                  <p className="text-sm font-medium">Personal</p>
+                  <p className="text-xs text-gray-500">Your personal accounts</p>
+                </div>
+              </div>
+              {!currentOrg && (
+                <Check className="h-4 w-4 text-blue-600" />
+              )}
+            </button>
+            
+            {/* Organization Options */}
             {organizations.map((org) => (
               <button
                 key={org.id}
