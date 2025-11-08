@@ -18,6 +18,19 @@ interface PlatformSelection {
   selected: boolean;
 }
 
+interface PlatformCustomSettings {
+  customMessage?: string;
+  postType?: string;
+  tone?: string;
+  postGoal?: string;
+  targetAudience?: string;
+  includeEmojis?: boolean;
+  includeHashtags?: boolean;
+  hashtagCount?: number;
+  includeCTA?: boolean;
+  brandVoice?: string;
+}
+
 function CreatePostContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -34,7 +47,6 @@ function CreatePostContent() {
   );
   
   // AI mode fields - Enhanced
-  const [postTitle, setPostTitle] = useState('');
   const [primaryMessage, setPrimaryMessage] = useState('');
   const [postType, setPostType] = useState<'general' | 'question' | 'tip' | 'announcement' | 'story' | 'promotional' | 'educational'>('general');
   const [tone, setTone] = useState<'professional' | 'casual' | 'friendly' | 'informative' | 'inspirational'>('professional');
@@ -48,7 +60,7 @@ function CreatePostContent() {
   
   // Per-platform customization
   const [customizePerPlatform, setCustomizePerPlatform] = useState(false);
-  const [platformSettings, setPlatformSettings] = useState<Record<string, any>>({});
+  const [platformSettings, setPlatformSettings] = useState<Record<string, PlatformCustomSettings>>({});
   const [platformGeneratedContent, setPlatformGeneratedContent] = useState<Record<string, string>>({});
   
   const [content, setContent] = useState('');
@@ -218,7 +230,11 @@ function CreatePostContent() {
     }
   };
 
-  const updatePlatformSetting = (accountId: string, key: string, value: any) => {
+  const updatePlatformSetting = <K extends keyof PlatformCustomSettings>(
+    accountId: string, 
+    key: K, 
+    value: PlatformCustomSettings[K]
+  ) => {
     setPlatformSettings(prev => ({
       ...prev,
       [accountId]: {
@@ -228,7 +244,11 @@ function CreatePostContent() {
     }));
   };
 
-  const getPlatformSetting = (accountId: string, key: string, defaultValue: any) => {
+  const getPlatformSetting = <K extends keyof PlatformCustomSettings>(
+    accountId: string, 
+    key: K, 
+    defaultValue: PlatformCustomSettings[K]
+  ): PlatformCustomSettings[K] => {
     return platformSettings[accountId]?.[key] ?? defaultValue;
   };
 

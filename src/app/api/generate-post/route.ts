@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Build enhanced system prompt
-    let systemPrompt = `You are an expert social media content creator and copywriter specializing in ${platform}.
+    const systemPrompt = `You are an expert social media content creator and copywriter specializing in ${platform}.
 
 PLATFORM: ${platform}
 TONE: ${toneDescriptions[tone as keyof typeof toneDescriptions]}
