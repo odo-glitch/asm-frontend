@@ -559,7 +559,7 @@ function CreatePostContent() {
                     <select
                       className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2 border"
                       value={postType}
-                      onChange={(e) => setPostType(e.target.value as any)}
+                      onChange={(e) => setPostType(e.target.value as typeof postType)}
                     >
                       <option value="general">General</option>
                       <option value="question">❓ Question</option>
@@ -578,7 +578,7 @@ function CreatePostContent() {
                     <select
                       className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2 border"
                       value={tone}
-                      onChange={(e) => setTone(e.target.value as any)}
+                      onChange={(e) => setTone(e.target.value as typeof tone)}
                     >
                       <option value="professional">👔 Professional</option>
                       <option value="casual">😊 Casual</option>
@@ -598,7 +598,7 @@ function CreatePostContent() {
                     <select
                       className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2 border"
                       value={postGoal}
-                      onChange={(e) => setPostGoal(e.target.value as any)}
+                      onChange={(e) => setPostGoal(e.target.value as typeof postGoal)}
                     >
                       <option value="engagement">💬 Engagement</option>
                       <option value="awareness">📣 Awareness</option>
