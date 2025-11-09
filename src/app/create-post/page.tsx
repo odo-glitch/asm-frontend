@@ -431,7 +431,7 @@ function CreatePostContent() {
               {/* Media Library Grid */}
               {showMediaLibrary && (
                 <div className="mt-4 border rounded-lg">
-                  <div className="flex items-center justify-between p-3 border-b bg-gray-50">
+                  <div className="flex items-center justify-between p-3 bg-gray-50">
                     <span className="text-sm font-medium text-gray-700">Content Library</span>
                     <button
                       onClick={refreshContentItems}
