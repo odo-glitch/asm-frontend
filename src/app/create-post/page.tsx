@@ -430,17 +430,17 @@ function CreatePostContent() {
 
               {/* Media Library Grid */}
               {showMediaLibrary && (
-                <div className="mt-4 border rounded-lg">
-                  <div className="flex items-center justify-between p-3 bg-gray-50">
+                <div className="mt-4 border border-gray-200 rounded-lg overflow-hidden">
+                  <div className="flex items-center justify-between p-3 bg-gray-50 border-b border-gray-200">
                     <span className="text-sm font-medium text-gray-700">Content Library</span>
                     <button
                       onClick={refreshContentItems}
                       disabled={isRefreshingContent}
-                      className="flex items-center gap-1 px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded transition-colors disabled:opacity-50"
+                      className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       title="Refresh content library"
                     >
-                      <RefreshCw className={`w-3 h-3 ${isRefreshingContent ? 'animate-spin' : ''}`} />
-                      Refresh
+                      <RefreshCw className={`w-3.5 h-3.5 ${isRefreshingContent ? 'animate-spin' : ''}`} />
+                      <span>Refresh</span>
                     </button>
                   </div>
                   <div className="grid grid-cols-3 gap-4 max-h-96 overflow-y-auto p-4">
@@ -537,7 +537,7 @@ function CreatePostContent() {
                 </label>
                 <textarea
                   rows={4}
-                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 resize-none p-3 border"
+                  className="w-full rounded-md border border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 resize-none p-3"
                   placeholder="e.g., We're launching a new product that helps small businesses automate their social media..."
                   value={primaryMessage}
                   onChange={(e) => setPrimaryMessage(e.target.value)}
@@ -557,7 +557,7 @@ function CreatePostContent() {
                       Post Type
                     </label>
                     <select
-                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2 border"
+                      className="w-full rounded-md border border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2"
                       value={postType}
                       onChange={(e) => setPostType(e.target.value as typeof postType)}
                     >
@@ -576,7 +576,7 @@ function CreatePostContent() {
                       Tone
                     </label>
                     <select
-                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2 border"
+                      className="w-full rounded-md border border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2"
                       value={tone}
                       onChange={(e) => setTone(e.target.value as typeof tone)}
                     >
@@ -596,7 +596,7 @@ function CreatePostContent() {
                       Post Goal
                     </label>
                     <select
-                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2 border"
+                      className="w-full rounded-md border border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2"
                       value={postGoal}
                       onChange={(e) => setPostGoal(e.target.value as typeof postGoal)}
                     >
@@ -613,7 +613,7 @@ function CreatePostContent() {
                     </label>
                     <input
                       type="text"
-                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2 border"
+                      className="w-full rounded-md border border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2"
                       placeholder="e.g., small business owners"
                       value={targetAudience}
                       onChange={(e) => setTargetAudience(e.target.value)}
@@ -715,7 +715,7 @@ function CreatePostContent() {
                   </label>
                   <input
                     type="text"
-                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2 border"
+                    className="w-full rounded-md border border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm p-2"
                     placeholder="e.g., playful and witty, data-driven expert"
                     value={brandVoice}
                     onChange={(e) => setBrandVoice(e.target.value)}
@@ -731,7 +731,7 @@ function CreatePostContent() {
                   
                   <div className="space-y-3">
                     {platformSelections.filter(p => p.selected).map((account) => (
-                      <details key={account.accountId} className="bg-gray-50 rounded-lg border border-gray-200">
+                      <details key={account.accountId} className="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
                         <summary className="cursor-pointer px-4 py-3 font-medium text-sm text-gray-800 hover:bg-gray-100 rounded-lg flex items-center justify-between">
                           <span className="flex items-center gap-2">
                             <span className="capitalize">{account.platform}</span>
@@ -749,7 +749,7 @@ function CreatePostContent() {
                             </label>
                             <textarea
                               rows={3}
-                              className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 resize-none text-sm p-2 border"
+                              className="w-full rounded-md border border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 resize-none text-sm p-2"
                               placeholder="Custom content for this platform..."
                               value={getPlatformSetting(account.accountId, 'customMessage', '')}
                               onChange={(e) => updatePlatformSetting(account.accountId, 'customMessage', e.target.value)}
@@ -761,7 +761,7 @@ function CreatePostContent() {
                             <div>
                               <label className="block text-xs font-medium text-gray-700 mb-1">Post Type</label>
                               <select
-                                className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs p-1.5 border"
+                                className="w-full rounded-md border border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs p-1.5"
                                 value={getPlatformSetting(account.accountId, 'postType', '')}
                                 onChange={(e) => updatePlatformSetting(account.accountId, 'postType', e.target.value)}
                               >
@@ -780,7 +780,7 @@ function CreatePostContent() {
                             <div>
                               <label className="block text-xs font-medium text-gray-700 mb-1">Tone</label>
                               <select
-                                className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs p-1.5 border"
+                                className="w-full rounded-md border border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs p-1.5"
                                 value={getPlatformSetting(account.accountId, 'tone', '')}
                                 onChange={(e) => updatePlatformSetting(account.accountId, 'tone', e.target.value)}
                               >
@@ -797,7 +797,7 @@ function CreatePostContent() {
                             <div>
                               <label className="block text-xs font-medium text-gray-700 mb-1">Goal</label>
                               <select
-                                className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs p-1.5 border"
+                                className="w-full rounded-md border border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-xs p-1.5"
                                 value={getPlatformSetting(account.accountId, 'postGoal', '')}
                                 onChange={(e) => updatePlatformSetting(account.accountId, 'postGoal', e.target.value)}
                               >
@@ -929,7 +929,7 @@ function CreatePostContent() {
                     
                     <textarea
                       rows={6}
-                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 resize-none p-3 border bg-white text-sm"
+                      className="w-full rounded-md border border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 resize-none p-3 bg-white text-sm"
                       value={platformGeneratedContent[account.accountId] || ''}
                       onChange={(e) => setPlatformGeneratedContent(prev => ({
                         ...prev,
@@ -1014,7 +1014,7 @@ function CreatePostContent() {
             <div className="bg-white rounded-lg shadow-sm border border-blue-50 p-6">
               <h3 className="text-sm font-medium text-gray-700 mb-4">Post Preview</h3>
               
-              <div className="border rounded-lg p-4 bg-gray-50">
+              <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
                 {/* Preview Image/Video */}
                 {selectedMedia && (
                   <div className="mb-3">
