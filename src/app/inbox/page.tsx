@@ -389,15 +389,48 @@ function InboxContent() {
   }, [])
 
   const handleSendReply = async () => {
-    if (!replyText.trim() || !selectedConversation) return
+    if (!replyText.trim() || !selectedConversation || !user) return
 
     setSendingMessage(true)
     try {
-      // Send message to database
-      const newMessage = await sendMessage(selectedConversation.id, replyText)
-      
-      // Add to local state
-      setSelectedMessages(prev => [...prev, newMessage])
+      // For Instagram and Facebook, use backend API
+      if (selectedConversation.platform === 'instagram' || selectedConversation.platform === 'facebook') {
+        const apiEndpoint = selectedConversation.platform
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/${apiEndpoint}/conversations/${user.id}/${selectedConversation.id}/reply`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              message: replyText
+            })
+          }
+        )
+
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(errorData.error || 'Failed to send message')
+        }
+
+        // Create message object for local state
+        const newMessage: Message = {
+          id: `temp-${Date.now()}`,
+          conversation_id: selectedConversation.id,
+          text: replyText,
+          sender: 'user',
+          sender_name: 'You',
+          timestamp: new Date().toISOString(),
+          read: true
+        }
+        
+        setSelectedMessages(prev => [...prev, newMessage])
+      } else {
+        // For other platforms, use Supabase directly
+        const newMessage = await sendMessage(selectedConversation.id, replyText)
+        setSelectedMessages(prev => [...prev, newMessage])
+      }
 
       // Update the conversation in the list
       setConversations(convs => convs.map(conv => {
