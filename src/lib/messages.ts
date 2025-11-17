@@ -21,10 +21,14 @@ export interface Message {
   platform_message_id?: string | null
   text: string
   sender: 'user' | 'customer'
+  sender_name?: string
+  sender_avatar?: string | null
+  image_url?: string | null
+  attachment_type?: string | null
   timestamp: string
   read: boolean
   metadata?: Record<string, unknown>
-  created_at: string
+  created_at?: string
 }
 
 // Fetch all conversations for the current user

@@ -657,14 +657,56 @@ function InboxContent() {
                     {selectedMessages.map((message) => (
                       <div
                         key={message.id}
-                        className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                        className={`flex gap-2 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                       >
+                        {/* Profile Picture for customer messages */}
+                        {message.sender === 'customer' && (
+                          <div className="flex-shrink-0">
+                            {message.sender_avatar ? (
+                              <img 
+                                src={message.sender_avatar} 
+                                alt={message.sender_name || 'Customer'}
+                                className="w-8 h-8 rounded-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                                <User className="w-4 h-4 text-gray-600" />
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        
                         <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
                           message.sender === 'user'
                             ? 'bg-blue-600 text-white'
                             : 'bg-white text-gray-900 shadow'
                         }`}>
-                          <p className="text-sm">{message.text}</p>
+                          {/* Show image if available */}
+                          {message.image_url && (
+                            <div className="mb-2">
+                              <img 
+                                src={message.image_url} 
+                                alt="Attachment"
+                                className="rounded max-w-full h-auto max-h-64 object-contain"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none';
+                                }}
+                              />
+                            </div>
+                          )}
+                          
+                          {/* Show text if available */}
+                          {message.text && (
+                            <p className="text-sm">{message.text}</p>
+                          )}
+                          
+                          {/* Show attachment type if no text and no image loaded */}
+                          {!message.text && !message.image_url && message.attachment_type && (
+                            <p className="text-sm italic">
+                              [{message.attachment_type} attachment]
+                            </p>
+                          )}
+                          
                           <p className={`text-xs mt-1 ${
                             message.sender === 'user' ? 'text-blue-100' : 'text-gray-500'
                           }`}>
