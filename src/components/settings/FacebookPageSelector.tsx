@@ -63,8 +63,8 @@ export function FacebookPageSelector({ open, onOpenChange, userId, onPageSelecte
     try {
       setSelecting(page.id);
       
-      // Step 1: Call backend to select the page (this gets the access token)
-      const backendResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/facebook/pages/select`, {
+      // Call backend to select the page and update the account
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/facebook/pages/select`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -76,31 +76,9 @@ export function FacebookPageSelector({ open, onOpenChange, userId, onPageSelecte
         }),
       });
 
-      if (!backendResponse.ok) {
-        const errorData = await backendResponse.json();
-        throw new Error(errorData.details || errorData.error || 'Failed to select page from backend');
-      }
-
-      const backendData = await backendResponse.json();
-      
-      // Step 2: Save to frontend Supabase database
-      const saveResponse = await fetch('/api/facebook/save-page', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          pageId: page.id,
-          pageName: page.name,
-          accessToken: backendData.accessToken || 'temp_token', // Use token from backend
-          organizationId: null, // or get from context if needed
-        }),
-      });
-
-      if (!saveResponse.ok) {
-        const saveError = await saveResponse.json();
-        console.error('Failed to save to database:', saveError);
-        // Don't throw - backend succeeded, just log the error
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.details || errorData.error || 'Failed to select page');
       }
 
       toast({

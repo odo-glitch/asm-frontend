@@ -9,6 +9,7 @@ import { PersonalProfileSection } from './PersonalProfileSection';
 import { ConnectedAccountsSection } from './ConnectedAccountsSection';
 import { BrandProfileSection } from './BrandProfileSection';
 import { FacebookPageSelector } from './FacebookPageSelector';
+import { InstagramAccountSelector } from './InstagramAccountSelector';
 import { LinkedInOrganizationSelector } from './LinkedInOrganizationSelector';
 import { Trash2 } from 'lucide-react';
 import { useMobileMenu } from '@/components/layout/AppLayout';
@@ -24,6 +25,7 @@ export function SettingsContent({ userEmail, userId }: SettingsContentProps) {
   const [accounts, setAccounts] = useState<SocialAccount[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showFacebookPageSelector, setShowFacebookPageSelector] = useState(false);
+  const [showInstagramAccountSelector, setShowInstagramAccountSelector] = useState(false);
   const [showLinkedInOrganizationSelector, setShowLinkedInOrganizationSelector] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -46,6 +48,13 @@ export function SettingsContent({ userEmail, userId }: SettingsContentProps) {
       if (platform === 'facebook') {
         setTimeout(() => {
           setShowFacebookPageSelector(true);
+        }, 500);
+      }
+      
+      // Show Instagram account selector if Instagram was just connected
+      if (platform === 'instagram') {
+        setTimeout(() => {
+          setShowInstagramAccountSelector(true);
         }, 500);
       }
       
@@ -189,6 +198,14 @@ export function SettingsContent({ userEmail, userId }: SettingsContentProps) {
         onOpenChange={setShowFacebookPageSelector}
         userId={userId}
         onPageSelected={loadAccounts}
+      />
+
+      {/* Instagram Account Selector Modal */}
+      <InstagramAccountSelector
+        open={showInstagramAccountSelector}
+        onOpenChange={setShowInstagramAccountSelector}
+        userId={userId}
+        onAccountSelected={loadAccounts}
       />
 
       {/* LinkedIn Organization Selector Modal */}

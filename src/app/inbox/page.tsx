@@ -652,7 +652,7 @@ function InboxContent() {
                 </div>
 
                 {/* Messages */}
-                <div className="flex-1 overflow-y-auto px-6 py-4">
+                <div className="flex-1 overflow-y-auto px-6 pt-0 pb-4">
                   <div className="space-y-4">
                     {selectedMessages.map((message) => (
                       <div
