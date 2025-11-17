@@ -139,7 +139,7 @@ export function InstagramAccountSelector({ open, onOpenChange, userId, onAccount
               <div className="mt-6 text-left max-w-md mx-auto bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <h4 className="font-semibold text-blue-900 mb-2">How to connect Instagram:</h4>
                 <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
-                  <li>Create a Facebook Page (if you don't have one)</li>
+                  <li>Create a Facebook Page (if you don&apos;t have one)</li>
                   <li>Convert your Instagram account to a Business account</li>
                   <li>Link your Instagram Business account to your Facebook Page</li>
                   <li>Come back here and reconnect Facebook</li>
