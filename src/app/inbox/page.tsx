@@ -60,171 +60,6 @@ const platformColors = {
   tiktok: 'bg-black',
 }
 
-// Helper to generate mock conversations with correct schema
-function generateMockConversations(): Conversation[] {
-  const userId = 'mock-user-id'
-  const now = new Date()
-  
-  return [
-    {
-      id: '1',
-      user_id: userId,
-      platform: 'twitter',
-      customer_id: 'twitter_sarah_123',
-      customer_name: 'Sarah Johnson',
-      customer_avatar: null,
-      last_message: 'Hi, I love your product! Can you tell me more about...',
-      last_message_time: new Date(now.getTime() - 2 * 60000).toISOString(), // 2 minutes ago
-      unread_count: 2,
-      metadata: {},
-      created_at: new Date(now.getTime() - 86400000).toISOString(),
-      updated_at: new Date(now.getTime() - 2 * 60000).toISOString()
-    },
-    {
-      id: '2',
-      user_id: userId,
-      platform: 'facebook',
-      customer_id: 'fb_mike_456',
-      customer_name: 'Mike Thompson',
-      customer_avatar: null,
-      last_message: 'Thanks for the quick response!',
-      last_message_time: new Date(now.getTime() - 3600000).toISOString(), // 1 hour ago
-      unread_count: 0,
-      metadata: {},
-      created_at: new Date(now.getTime() - 172800000).toISOString(),
-      updated_at: new Date(now.getTime() - 3600000).toISOString()
-    },
-    {
-      id: '3',
-      user_id: userId,
-      platform: 'linkedin',
-      customer_id: 'li_emily_789',
-      customer_name: 'Emily Davis',
-      customer_avatar: null,
-      last_message: 'Looking forward to connecting!',
-      last_message_time: new Date(now.getTime() - 10800000).toISOString(), // 3 hours ago
-      unread_count: 1,
-      metadata: {},
-      created_at: new Date(now.getTime() - 259200000).toISOString(),
-      updated_at: new Date(now.getTime() - 10800000).toISOString()
-    }
-  ]
-}
-
-// Helper to generate mock messages
-function generateMockMessages(conversationId: string): Message[] {
-  const now = new Date()
-  const messages: Record<string, Message[]> = {
-    '1': [
-      {
-        id: '1-1',
-        conversation_id: '1',
-        platform_message_id: 'tw_msg_001',
-        text: 'Hi there! I saw your recent post about the new features.',
-        sender: 'customer',
-        timestamp: new Date(now.getTime() - 300000).toISOString(),
-        read: false,
-        metadata: {},
-        created_at: new Date(now.getTime() - 300000).toISOString()
-      },
-      {
-        id: '1-2',
-        conversation_id: '1',
-        platform_message_id: 'tw_msg_002',
-        text: 'Thank you for reaching out! I\'d be happy to help.',
-        sender: 'user',
-        timestamp: new Date(now.getTime() - 240000).toISOString(),
-        read: true,
-        metadata: {},
-        created_at: new Date(now.getTime() - 240000).toISOString()
-      },
-      {
-        id: '1-3',
-        conversation_id: '1',
-        platform_message_id: 'tw_msg_003',
-        text: 'Hi, I love your product! Can you tell me more about the pricing plans?',
-        sender: 'customer',
-        timestamp: new Date(now.getTime() - 120000).toISOString(),
-        read: false,
-        metadata: {},
-        created_at: new Date(now.getTime() - 120000).toISOString()
-      }
-    ],
-    '2': [
-      {
-        id: '2-1',
-        conversation_id: '2',
-        platform_message_id: 'fb_msg_001',
-        text: 'Is your service available in Canada?',
-        sender: 'customer',
-        timestamp: new Date(now.getTime() - 5400000).toISOString(),
-        read: true,
-        metadata: {},
-        created_at: new Date(now.getTime() - 5400000).toISOString()
-      },
-      {
-        id: '2-2',
-        conversation_id: '2',
-        platform_message_id: 'fb_msg_002',
-        text: 'Yes! We offer full service across Canada.',
-        sender: 'user',
-        timestamp: new Date(now.getTime() - 4500000).toISOString(),
-        read: true,
-        metadata: {},
-        created_at: new Date(now.getTime() - 4500000).toISOString()
-      },
-      {
-        id: '2-3',
-        conversation_id: '2',
-        platform_message_id: 'fb_msg_003',
-        text: 'Thanks for the quick response!',
-        sender: 'customer',
-        timestamp: new Date(now.getTime() - 3600000).toISOString(),
-        read: true,
-        metadata: {},
-        created_at: new Date(now.getTime() - 3600000).toISOString()
-      }
-    ],
-    '3': [
-      {
-        id: '3-1',
-        conversation_id: '3',
-        platform_message_id: 'li_msg_001',
-        text: 'I\'m interested in learning more about your B2B solutions.',
-        sender: 'customer',
-        timestamp: new Date(now.getTime() - 14400000).toISOString(),
-        read: true,
-        metadata: {},
-        created_at: new Date(now.getTime() - 14400000).toISOString()
-      },
-      {
-        id: '3-2',
-        conversation_id: '3',
-        platform_message_id: 'li_msg_002',
-        text: 'I\'d be happy to schedule a call to discuss our enterprise options.',
-        sender: 'user',
-        timestamp: new Date(now.getTime() - 12600000).toISOString(),
-        read: true,
-        metadata: {},
-        created_at: new Date(now.getTime() - 12600000).toISOString()
-      },
-      {
-        id: '3-3',
-        conversation_id: '3',
-        platform_message_id: 'li_msg_003',
-        text: 'Looking forward to connecting!',
-        sender: 'customer',
-        timestamp: new Date(now.getTime() - 10800000).toISOString(),
-        read: false,
-        metadata: {},
-        created_at: new Date(now.getTime() - 10800000).toISOString()
-      }
-    ]
-  }
-  
-  return messages[conversationId] || []
-}
-
 function InboxContent() {
   const router = useRouter()
   const { isMobileMenuOpen, setIsMobileMenuOpen } = useMobileMenu()
@@ -357,26 +192,15 @@ function InboxContent() {
             setSelectedConversation(conversations[0])
             const messages = await fetchMessages(conversations[0].id)
             setSelectedMessages(messages)
-          } else {
-            // Use mock data if no real conversations
-            const mockConvs = generateMockConversations()
-            setConversations(mockConvs)
-            setSelectedConversation(mockConvs[0])
-            setSelectedMessages(generateMockMessages(mockConvs[0].id))
           }
+          // No conversations - empty state will be shown
         } catch (error) {
           console.error('Failed to fetch conversations:', error)
           
           // Check if it's a "relation does not exist" error
           if (error instanceof Error && error.message?.includes('relation') && error.message?.includes('does not exist')) {
-            setDbError('Database tables not found. Showing demo data.')
+            setDbError('Database tables not found.')
           }
-          
-          // Fallback to mock data
-          const mockConvs = generateMockConversations()
-          setConversations(mockConvs)
-          setSelectedConversation(mockConvs[0])
-          setSelectedMessages(generateMockMessages(mockConvs[0].id))
         }
       } catch (error) {
         console.error('Failed to load data:', error)
@@ -387,6 +211,37 @@ function InboxContent() {
 
     loadData()
   }, [])
+
+  // Real-time polling for new messages
+  useEffect(() => {
+    if (!selectedConversation || !user) return
+
+    const pollMessages = async () => {
+      try {
+        if (selectedConversation.platform === 'instagram' || selectedConversation.platform === 'facebook') {
+          const apiEndpoint = selectedConversation.platform
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/${apiEndpoint}/conversations/${user.id}/${selectedConversation.id}/messages`
+          )
+          if (response.ok) {
+            const data = await response.json()
+            setSelectedMessages(data.messages)
+          }
+        } else {
+          const messages = await fetchMessages(selectedConversation.id)
+          setSelectedMessages(messages)
+        }
+      } catch (error) {
+        console.error('Failed to poll messages:', error)
+      }
+    }
+
+    // Poll every 10 seconds
+    const interval = setInterval(pollMessages, 10000)
+
+    // Cleanup on unmount or when conversation changes
+    return () => clearInterval(interval)
+  }, [selectedConversation, user])
 
   const handleSendReply = async () => {
     if (!replyText.trim() || !selectedConversation || !user) return
@@ -491,8 +346,7 @@ function InboxContent() {
       }
     } catch (error) {
       console.error('Failed to fetch messages:', error)
-      // Fallback to mock messages
-      setSelectedMessages(generateMockMessages(conversation.id))
+      setSelectedMessages([])
     }
   }
 
@@ -600,7 +454,26 @@ function InboxContent() {
             </div>
             
             <div className="divide-y divide-gray-100">
-              {conversations.map((conversation) => {
+              {conversations.length === 0 ? (
+                <div className="p-8 text-center">
+                  <div className="flex justify-center mb-4">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                      <Send className="w-8 h-8 text-gray-400" />
+                    </div>
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No conversations yet</h3>
+                  <p className="text-sm text-gray-500 mb-4">
+                    Connect your social media accounts to start receiving messages
+                  </p>
+                  <a
+                    href="/settings"
+                    className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700"
+                  >
+                    Connect Accounts
+                  </a>
+                </div>
+              ) : (
+                conversations.map((conversation) => {
                 const Icon = platformIcons[conversation.platform]
                 const bgColor = platformColors[conversation.platform]
                 
@@ -659,7 +532,8 @@ function InboxContent() {
                     </div>
                   </button>
                 )
-              })}
+              })
+              )}
             </div>
           </div>
 
