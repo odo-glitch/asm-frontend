@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Facebook, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -111,6 +111,9 @@ export function FacebookPageSelector({ open, onOpenChange, userId, onPageSelecte
             <Facebook className="w-5 h-5 text-blue-600" />
             Select Facebook Page
           </DialogTitle>
+          <DialogDescription>
+            Choose which Facebook Page to connect for messaging. You need admin access to the page.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="py-4">

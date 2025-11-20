@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Instagram, CheckCircle2, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -120,6 +120,9 @@ export function InstagramAccountSelector({ open, onOpenChange, userId, onAccount
             <Instagram className="w-5 h-5 text-pink-600" />
             Select Instagram Business Account
           </DialogTitle>
+          <DialogDescription>
+            Choose which Instagram Business account to connect for messaging.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="py-4">
