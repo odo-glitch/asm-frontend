@@ -152,6 +152,8 @@ export function FacebookPageSelector({ open, onOpenChange, userId, onPageSelecte
                         <h3 className="font-semibold text-gray-900">{page.name}</h3>
                       </div>
                       
+                      <p className="text-xs text-gray-500 mt-1 font-mono">ID: {page.id}</p>
+                      
                       {page.category && (
                         <p className="text-sm text-gray-600 mt-1">{page.category}</p>
                       )}
