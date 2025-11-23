@@ -246,7 +246,13 @@ function DayManagementModal({ isOpen, onClose, date, posts, accounts, onRefresh,
   const handleEdit = (post: ScheduledPost) => {
     setEditingPostId(post.id)
     setEditContent(post.content)
-    setEditTime(new Date(post.scheduled_time).toTimeString().slice(0, 5))
+    // Handle null scheduled_time for "Post Now" posts
+    if (post.scheduled_time) {
+      setEditTime(new Date(post.scheduled_time).toTimeString().slice(0, 5))
+    } else {
+      // Default to current time if no scheduled time (shouldn't normally happen in calendar view)
+      setEditTime(new Date().toTimeString().slice(0, 5))
+    }
   }
 
   const handleSaveEdit = async (postId: string) => {
@@ -312,10 +318,10 @@ function DayManagementModal({ isOpen, onClose, date, posts, accounts, onRefresh,
                     <PlatformIcon platform={post.platform} />
                     <span className="text-sm font-medium capitalize">{post.platform}</span>
                     <span className="text-xs text-gray-500">
-                      {new Date(post.scheduled_time).toLocaleTimeString('en-US', {
+                      {post.scheduled_time ? new Date(post.scheduled_time).toLocaleTimeString('en-US', {
                         hour: 'numeric',
                         minute: '2-digit'
-                      })}
+                      }) : 'No time set'}
                     </span>
                   </div>
                   {editingPostId !== post.id && (
@@ -509,6 +515,7 @@ function CalendarContent() {
 
   const getPostsForDate = (date: Date): ScheduledPost[] => {
     return scheduledPosts.filter(post => {
+      if (!post.scheduled_time) return false;
       const postDate = new Date(post.scheduled_time)
       return postDate.toDateString() === date.toDateString()
     })
@@ -616,10 +623,10 @@ function CalendarContent() {
                           <div key={postIndex} className="flex items-center gap-1">
                             <PlatformIcon platform={post.platform} />
                             <span className="text-xs text-gray-600 truncate">
-                              {new Date(post.scheduled_time).toLocaleTimeString('en-US', {
+                              {post.scheduled_time ? new Date(post.scheduled_time).toLocaleTimeString('en-US', {
                                 hour: 'numeric',
                                 minute: '2-digit'
-                              })}
+                              }) : 'Pending'}
                             </span>
                           </div>
                         ))}

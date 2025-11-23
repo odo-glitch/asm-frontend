@@ -71,7 +71,7 @@ export function DashboardContent({ userEmail, userId }: DashboardContentProps) {
       
       // Split posts into scheduled and recent
       const now = new Date();
-      const scheduled = posts.filter(p => p.status === 'scheduled' && new Date(p.scheduled_time) > now);
+      const scheduled = posts.filter(p => p.status === 'scheduled' && p.scheduled_time && new Date(p.scheduled_time) > now);
       const recent = posts.filter(p => p.status === 'published').slice(0, 5);
       
       setScheduledPosts(scheduled.slice(0, 5));
@@ -123,7 +123,8 @@ export function DashboardContent({ userEmail, userId }: DashboardContentProps) {
     }
   }
 
-  function formatDate(dateString: string) {
+  function formatDate(dateString: string | null) {
+    if (!dateString) return 'Pending';
     const date = new Date(dateString);
     const now = new Date();
     const diff = date.getTime() - now.getTime();
