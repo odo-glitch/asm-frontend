@@ -6,9 +6,9 @@ export interface ScheduledPost {
   user_id: string;
   social_account_id: string;
   content: string;
-  scheduled_time: string;
+  scheduled_time: string | null; // null for immediate posts
   platform: string;
-  status: 'scheduled' | 'published' | 'failed' | 'cancelled';
+  status: 'pending' | 'scheduled' | 'published' | 'failed' | 'cancelled';
   published_at: string | null;
   error_message: string | null;
   created_at: string;
@@ -18,7 +18,7 @@ export interface ScheduledPost {
 export interface CreateScheduledPostData {
   social_account_id: string;
   content: string;
-  scheduled_time: string;
+  scheduled_time: string | null; // null for "Post Now", string for scheduled posts
 }
 
 export async function createScheduledPost(data: CreateScheduledPostData) {
@@ -30,6 +30,11 @@ export async function createScheduledPost(data: CreateScheduledPostData) {
     throw new Error('User not authenticated');
   }
 
+  // Determine status based on scheduled_time
+  // null = Post Now (pending immediate publish)
+  // future time = scheduled for later
+  const status = data.scheduled_time === null ? 'pending' : 'scheduled';
+
   const { data: post, error } = await supabase
     .from('scheduled_posts')
     .insert({
@@ -37,6 +42,7 @@ export async function createScheduledPost(data: CreateScheduledPostData) {
       social_account_id: data.social_account_id,
       content: data.content,
       scheduled_time: data.scheduled_time,
+      status: status,
     })
     .select()
     .single();

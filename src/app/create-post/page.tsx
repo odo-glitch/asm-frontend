@@ -271,7 +271,9 @@ function CreatePostContent() {
         return;
       }
 
-      const scheduledDateTime = isScheduled ? `${scheduledDate}T${scheduledTime}` : new Date().toISOString();
+      // For "Post Now", use null to trigger immediate publishing
+      // For scheduled posts, combine date and time
+      const scheduledDateTime = isScheduled ? `${scheduledDate}T${scheduledTime}` : null;
 
       // Create a post for each selected platform with appropriate content
       if (isAIMode && customizePerPlatform) {
