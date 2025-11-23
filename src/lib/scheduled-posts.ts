@@ -6,7 +6,6 @@ export interface ScheduledPost {
   user_id: string;
   social_account_id: string;
   content: string;
-  media_url: string | null; // Media URL for Instagram/Facebook posts
   scheduled_time: string; // ISO timestamp
   platform: string;
   status: 'scheduled' | 'published' | 'failed' | 'cancelled';
@@ -14,13 +13,14 @@ export interface ScheduledPost {
   error_message: string | null;
   created_at: string;
   updated_at: string;
+  media_url?: string | null; // Optional media URL for posts with images/videos
 }
 
 export interface CreateScheduledPostData {
   social_account_id: string;
   content: string;
-  media_url?: string | null; // Optional media URL for Instagram/Facebook
   scheduled_time: string | null; // null for "Post Now" (will use current time), string for scheduled posts
+  media_url?: string | null; // Optional media URL for Instagram/Facebook posts
 }
 
 export async function createScheduledPost(data: CreateScheduledPostData) {
@@ -42,8 +42,8 @@ export async function createScheduledPost(data: CreateScheduledPostData) {
       user_id: user.id,
       social_account_id: data.social_account_id,
       content: data.content,
-      media_url: data.media_url || null,
       scheduled_time: scheduledTime,
+      media_url: data.media_url || null,
     })
     .select()
     .single();

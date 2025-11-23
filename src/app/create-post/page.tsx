@@ -299,8 +299,8 @@ function CreatePostContent() {
             createScheduledPost({
               social_account_id: account.accountId,
               content: platformGeneratedContent[account.accountId],
-              media_url: selectedMedia?.url || null,
               scheduled_time: scheduledDateTime,
+              media_url: selectedMedia?.url || null,
             })
           )
         );
@@ -319,8 +319,8 @@ function CreatePostContent() {
             createScheduledPost({
               social_account_id: account.accountId,
               content: postContent,
-              media_url: selectedMedia?.url || null,
               scheduled_time: scheduledDateTime,
+              media_url: selectedMedia?.url || null,
             })
           )
         );
