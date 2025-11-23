@@ -71,6 +71,7 @@ export function DashboardContent({ userEmail, userId }: DashboardContentProps) {
       
       // Split posts into scheduled and recent
       const now = new Date();
+      // Only show posts scheduled for the future (not "Post Now" posts which have scheduled_time <= now)
       const scheduled = posts.filter(p => p.status === 'scheduled' && p.scheduled_time && new Date(p.scheduled_time) > now);
       const recent = posts.filter(p => p.status === 'published').slice(0, 5);
       
@@ -128,6 +129,10 @@ export function DashboardContent({ userEmail, userId }: DashboardContentProps) {
     const date = new Date(dateString);
     const now = new Date();
     const diff = date.getTime() - now.getTime();
+    
+    // If scheduled time is in the past or very close (within 1 minute), it's a "Post Now"
+    if (diff <= 60000) return 'Pending publish';
+    
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     
