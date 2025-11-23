@@ -67,6 +67,8 @@ function CreatePostContent() {
   const [platformSelections, setPlatformSelections] = useState<PlatformSelection[]>([]);
   const [contentItems, setContentItems] = useState<ContentItem[]>([]);
   const [selectedMedia, setSelectedMedia] = useState<ContentItem | null>(null);
+  const [mediaUrl, setMediaUrl] = useState('');
+  const [mediaType, setMediaType] = useState<'image' | 'video' | null>(null);
   const [scheduledDate, setScheduledDate] = useState('');
   const [scheduledTime, setScheduledTime] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -299,6 +301,8 @@ function CreatePostContent() {
             createScheduledPost({
               social_account_id: account.accountId,
               content: platformGeneratedContent[account.accountId],
+              media_url: mediaUrl || null,
+              media_type: mediaType,
               scheduled_time: scheduledDateTime,
             })
           )
@@ -318,6 +322,8 @@ function CreatePostContent() {
             createScheduledPost({
               social_account_id: account.accountId,
               content: postContent,
+              media_url: mediaUrl || null,
+              media_type: mediaType,
               scheduled_time: scheduledDateTime,
             })
           )
@@ -976,6 +982,86 @@ function CreatePostContent() {
               <p className="mt-2 text-sm text-gray-500">
                 {content.length} characters
               </p>
+              
+              {/* Media Upload for Instagram */}
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <h4 className="text-sm font-medium text-gray-700 mb-4">
+                  📸 Media (Required for Instagram)
+                </h4>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-2">
+                      Media URL
+                    </label>
+                    <input
+                      type="url"
+                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 border text-sm"
+                      placeholder="https://example.com/image.jpg"
+                      value={mediaUrl}
+                      onChange={(e) => setMediaUrl(e.target.value)}
+                    />
+                    <p className="mt-1 text-xs text-gray-500">
+                      Public URL to your image or video
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-2">
+                      Media Type
+                    </label>
+                    <div className="flex gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setMediaType('image')}
+                        className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                          mediaType === 'image'
+                            ? 'bg-blue-500 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        📷 Image
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setMediaType('video')}
+                        className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                          mediaType === 'video'
+                            ? 'bg-blue-500 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        🎥 Video
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {mediaUrl && (
+                    <div className="mt-4">
+                      <p className="text-xs font-medium text-gray-700 mb-2">Preview:</p>
+                      {mediaType === 'image' ? (
+                        <img
+                          src={mediaUrl}
+                          alt="Preview"
+                          className="w-full h-48 object-cover rounded-md border border-gray-200"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      ) : mediaType === 'video' ? (
+                        <video
+                          src={mediaUrl}
+                          controls
+                          className="w-full h-48 rounded-md border border-gray-200"
+                          onError={(e) => {
+                            (e.target as HTMLVideoElement).style.display = 'none';
+                          }}
+                        />
+                      ) : null}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
             )}
 
