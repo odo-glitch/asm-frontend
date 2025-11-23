@@ -212,7 +212,60 @@ function InboxContent() {
     loadData()
   }, [])
 
-  // Real-time polling for new messages
+  // Real-time polling for conversation list (to catch new messages from any conversation)
+  useEffect(() => {
+    if (!user) return
+
+    const pollConversations = async () => {
+      try {
+        const allConversations: Conversation[] = []
+        
+        // Fetch Facebook conversations
+        try {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/facebook/conversations/${user.id}`)
+          if (response.ok) {
+            const data = await response.json()
+            if (data.conversations && data.conversations.length > 0) {
+              allConversations.push(...data.conversations)
+            }
+          }
+        } catch (error) {
+          // Silently fail
+        }
+
+        // Fetch Instagram conversations
+        try {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/instagram/conversations/${user.id}`)
+          if (response.ok) {
+            const data = await response.json()
+            if (data.conversations && data.conversations.length > 0) {
+              allConversations.push(...data.conversations)
+            }
+          }
+        } catch (error) {
+          // Silently fail
+        }
+
+        if (allConversations.length > 0) {
+          // Sort by most recent message first
+          allConversations.sort((a, b) => 
+            new Date(b.last_message_time).getTime() - new Date(a.last_message_time).getTime()
+          )
+          setConversations(allConversations)
+        }
+      } catch (error) {
+        console.error('Failed to poll conversations:', error)
+      }
+    }
+
+    // Poll every 15 seconds
+    const interval = setInterval(pollConversations, 15000)
+
+    // Cleanup on unmount
+    return () => clearInterval(interval)
+  }, [user])
+
+  // Real-time polling for new messages in selected conversation
   useEffect(() => {
     if (!selectedConversation || !user) return
 
@@ -299,17 +352,24 @@ function InboxContent() {
         setSelectedMessages(prev => [...prev, newMessage])
       }
 
-      // Update the conversation in the list
-      setConversations(convs => convs.map(conv => {
-        if (conv.id === selectedConversation.id) {
-          return {
-            ...conv,
-            last_message: replyText,
-            last_message_time: new Date().toISOString()
+      // Update the conversation in the list and re-sort by most recent
+      setConversations(convs => {
+        const updatedConvs = convs.map(conv => {
+          if (conv.id === selectedConversation.id) {
+            return {
+              ...conv,
+              last_message: replyText,
+              last_message_time: new Date().toISOString()
+            }
           }
-        }
-        return conv
-      }))
+          return conv
+        })
+        
+        // Sort by most recent message first
+        return updatedConvs.sort((a, b) => 
+          new Date(b.last_message_time).getTime() - new Date(a.last_message_time).getTime()
+        )
+      })
 
       // Clear reply text
       setReplyText('')
@@ -323,6 +383,16 @@ function InboxContent() {
 
   const handleConversationSelect = async (conversation: Conversation) => {
     setSelectedConversation(conversation)
+    
+    // Mark conversation as read (reset unread count)
+    if (conversation.unread_count > 0) {
+      setConversations(convs => convs.map(conv => {
+        if (conv.id === conversation.id) {
+          return { ...conv, unread_count: 0 }
+        }
+        return conv
+      }))
+    }
     
     // If it's a Facebook or Instagram conversation, fetch from appropriate API
     if ((conversation.platform === 'facebook' || conversation.platform === 'instagram') && user) {
@@ -520,23 +590,35 @@ function InboxContent() {
                       
                       {/* Conversation Details */}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <h3 className="text-sm font-medium text-gray-900 truncate">
+                        <div className="flex items-center justify-between mb-1">
+                          <h3 className={`text-sm truncate ${
+                            conversation.unread_count > 0 
+                              ? 'font-bold text-gray-900' 
+                              : 'font-medium text-gray-900'
+                          }`}>
                             {conversation.customer_name}
                           </h3>
-                          <span className="text-xs text-gray-500">
+                          <span className={`text-xs ml-2 flex-shrink-0 ${
+                            conversation.unread_count > 0 
+                              ? 'font-semibold text-gray-900' 
+                              : 'text-gray-500'
+                          }`}>
                             {formatMessageTime(conversation.last_message_time)}
                           </span>
                         </div>
-                        <p className="mt-1 text-sm text-gray-600 truncate">
-                          {conversation.last_message}
+                        <p className={`text-sm truncate ${
+                          conversation.unread_count > 0 
+                            ? 'font-semibold text-gray-900' 
+                            : 'text-gray-600'
+                        }`}>
+                          {conversation.last_message || 'No messages yet'}
                         </p>
                       </div>
                       
                       {/* Unread Badge */}
                       {conversation.unread_count > 0 && (
-                        <div className="flex-shrink-0">
-                          <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-medium text-white bg-blue-600 rounded-full">
+                        <div className="flex-shrink-0 ml-2">
+                          <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white bg-blue-600 rounded-full">
                             {conversation.unread_count}
                           </span>
                         </div>
