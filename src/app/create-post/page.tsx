@@ -272,8 +272,14 @@ function CreatePostContent() {
       }
 
       // For "Post Now", use null to trigger immediate publishing
-      // For scheduled posts, combine date and time
-      const scheduledDateTime = isScheduled ? `${scheduledDate}T${scheduledTime}` : null;
+      // For scheduled posts, combine date and time in user's local timezone
+      let scheduledDateTime: string | null = null;
+      if (isScheduled) {
+        // Create a Date object in the user's local timezone
+        const localDateTime = new Date(`${scheduledDate}T${scheduledTime}`);
+        // Convert to ISO string (includes timezone offset)
+        scheduledDateTime = localDateTime.toISOString();
+      }
 
       // Create a post for each selected platform with appropriate content
       if (isAIMode && customizePerPlatform) {
@@ -1102,6 +1108,17 @@ function CreatePostContent() {
               
               {isScheduled && (
               <div className="space-y-4">
+                {/* Timezone indicator */}
+                <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
+                  <p className="text-xs text-blue-800 flex items-center gap-2">
+                    <Clock className="h-3.5 w-3.5" />
+                    <span>
+                      Your timezone: <strong>{Intl.DateTimeFormat().resolvedOptions().timeZone}</strong>
+                      {' '}(UTC{new Date().getTimezoneOffset() > 0 ? '-' : '+'}{Math.abs(new Date().getTimezoneOffset() / 60)})
+                    </span>
+                  </p>
+                </div>
+                
                 <div>
                   <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                     <Calendar className="h-4 w-4" />
@@ -1119,7 +1136,7 @@ function CreatePostContent() {
                 <div>
                   <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                     <Clock className="h-4 w-4" />
-                    Time
+                    Time (local)
                   </label>
                   <input
                     type="time"
