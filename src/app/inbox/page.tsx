@@ -251,6 +251,20 @@ function InboxContent() {
       // For Instagram and Facebook, use backend API
       if (selectedConversation.platform === 'instagram' || selectedConversation.platform === 'facebook') {
         const apiEndpoint = selectedConversation.platform
+        
+        // For Facebook, we need to send recipientId (PSID) instead of conversation ID
+        const requestBody: { message: string; recipientId?: string } = {
+          message: replyText
+        }
+        
+        // Facebook requires the recipient's PSID
+        if (selectedConversation.platform === 'facebook') {
+          if (!selectedConversation.customer_id || selectedConversation.customer_id === 'unknown') {
+            throw new Error('Cannot send message: Customer ID not available')
+          }
+          requestBody.recipientId = selectedConversation.customer_id
+        }
+        
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/${apiEndpoint}/conversations/${user.id}/${selectedConversation.id}/reply`,
           {
@@ -258,9 +272,7 @@ function InboxContent() {
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-              message: replyText
-            })
+            body: JSON.stringify(requestBody)
           }
         )
 
