@@ -15,6 +15,15 @@ export interface Conversation {
   updated_at: string
 }
 
+export interface MessageAttachment {
+  id: string
+  mime_type: string
+  name?: string | null
+  image_url?: string | null
+  file_url?: string | null
+  video_url?: string | null
+}
+
 export interface Message {
   id: string
   conversation_id: string
@@ -25,6 +34,7 @@ export interface Message {
   sender_avatar?: string | null
   image_url?: string | null
   attachment_type?: string | null
+  attachments?: MessageAttachment[]
   timestamp: string
   read: boolean
   metadata?: Record<string, unknown>

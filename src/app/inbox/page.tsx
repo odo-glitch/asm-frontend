@@ -600,8 +600,80 @@ function InboxContent() {
                             ? 'bg-blue-600 text-white'
                             : 'bg-white text-gray-900 shadow'
                         }`}>
-                          {/* Show image if available */}
-                          {message.image_url && (
+                          {/* Render attachments if available */}
+                          {message.attachments && message.attachments.length > 0 && (
+                            <div className="mb-2 space-y-2">
+                              {message.attachments.map((attachment, index) => {
+                                // Image attachment
+                                if (attachment.mime_type?.startsWith('image/') && attachment.image_url) {
+                                  return (
+                                    <img 
+                                      key={attachment.id || index}
+                                      src={attachment.image_url} 
+                                      alt={attachment.name || 'Image'}
+                                      className="rounded max-w-full h-auto max-h-64 object-contain"
+                                      onError={(e) => {
+                                        e.currentTarget.style.display = 'none';
+                                      }}
+                                    />
+                                  );
+                                }
+                                
+                                // Video attachment
+                                if (attachment.mime_type?.startsWith('video/') && (attachment.video_url || attachment.file_url)) {
+                                  return (
+                                    <video 
+                                      key={attachment.id || index}
+                                      controls 
+                                      className="rounded max-w-full h-auto max-h-64"
+                                      onError={(e) => {
+                                        e.currentTarget.style.display = 'none';
+                                      }}
+                                    >
+                                      <source src={attachment.video_url || attachment.file_url || ''} type={attachment.mime_type} />
+                                      Your browser does not support the video tag.
+                                    </video>
+                                  );
+                                }
+                                
+                                // Audio attachment
+                                if (attachment.mime_type?.startsWith('audio/') && attachment.file_url) {
+                                  return (
+                                    <audio 
+                                      key={attachment.id || index}
+                                      controls 
+                                      className="w-full"
+                                    >
+                                      <source src={attachment.file_url} type={attachment.mime_type} />
+                                      Your browser does not support the audio tag.
+                                    </audio>
+                                  );
+                                }
+                                
+                                // Generic file attachment
+                                if (attachment.file_url) {
+                                  return (
+                                    <a 
+                                      key={attachment.id || index}
+                                      href={attachment.file_url} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className={`text-sm underline ${
+                                        message.sender === 'user' ? 'text-blue-100' : 'text-blue-600'
+                                      }`}
+                                    >
+                                      📎 {attachment.name || 'Download attachment'}
+                                    </a>
+                                  );
+                                }
+                                
+                                return null;
+                              })}
+                            </div>
+                          )}
+                          
+                          {/* Legacy: Show image_url if attachments not available */}
+                          {!message.attachments && message.image_url && (
                             <div className="mb-2">
                               <img 
                                 src={message.image_url} 
@@ -616,11 +688,11 @@ function InboxContent() {
                           
                           {/* Show text if available */}
                           {message.text && (
-                            <p className="text-sm">{message.text}</p>
+                            <p className="text-sm whitespace-pre-wrap">{message.text}</p>
                           )}
                           
-                          {/* Show attachment type if no text and no image loaded */}
-                          {!message.text && !message.image_url && message.attachment_type && (
+                          {/* Show placeholder if no text and no attachments */}
+                          {!message.text && (!message.attachments || message.attachments.length === 0) && !message.image_url && message.attachment_type && (
                             <p className="text-sm italic">
                               [{message.attachment_type} attachment]
                             </p>
