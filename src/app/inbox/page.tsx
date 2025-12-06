@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { AppLayout, useMobileMenu } from '@/components/layout/AppLayout'
@@ -63,6 +63,7 @@ const platformColors = {
 function InboxContent() {
   const router = useRouter()
   const { isMobileMenuOpen, setIsMobileMenuOpen } = useMobileMenu()
+  const messagesEndRef = useRef<HTMLDivElement>(null)
   const [accounts, setAccounts] = useState<SocialAccount[]>([]);
   const [isLoading, setIsLoading] = useState(true)
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null)
@@ -73,6 +74,11 @@ function InboxContent() {
   const [sendingMessage, setSendingMessage] = useState(false)
   const [dbError, setDbError] = useState<string | null>(null)
   const [facebookStatus, setFacebookStatus] = useState<string | null>(null)
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [selectedMessages])
 
   useEffect(() => {
     async function loadData() {
@@ -464,7 +470,7 @@ function InboxContent() {
         </div>
       </nav>
 
-      <div className="flex h-screen pt-16">
+      <div className="flex h-[calc(100vh-4rem)]">
         {/* Sidebar */}
         <Sidebar 
           accounts={accounts} 
@@ -474,7 +480,7 @@ function InboxContent() {
         />
 
         {/* Main Content - Three Panel Layout */}
-        <div className="flex-1 lg:ml-64 flex flex-col">
+        <div className="flex-1 lg:ml-64 flex flex-col h-full">
           {/* Connection Status Banner */}
           {facebookStatus && facebookStatus !== 'success' && (
             <div className="bg-blue-50 border-b border-blue-200 px-4 py-3">
@@ -525,9 +531,9 @@ function InboxContent() {
             </div>
           )}
           
-          <div className="flex-1 flex">
+          <div className="flex-1 flex overflow-hidden">
             {/* Left Panel - Conversation List */}
-            <div className="w-80 bg-white border-r border-gray-200 overflow-y-auto">
+            <div className="w-80 bg-white border-r border-gray-200 flex flex-col h-full">
             <div className="p-4 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900">Messages</h2>
               <p className="text-sm text-gray-600 mt-1">
@@ -535,7 +541,7 @@ function InboxContent() {
               </p>
             </div>
             
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-gray-100 overflow-y-auto flex-1">
               {conversations.length === 0 ? (
                 <div className="p-8 text-center">
                   <div className="flex justify-center mb-4">
@@ -632,7 +638,7 @@ function InboxContent() {
           </div>
 
           {/* Middle Panel - Chat Window */}
-          <div className="flex-1 flex flex-col bg-gray-50">
+          <div className="flex-1 flex flex-col bg-gray-50 h-full">
             {selectedConversation ? (
               <>
                 {/* Chat Header */}
@@ -653,7 +659,7 @@ function InboxContent() {
                 </div>
 
                 {/* Messages */}
-                <div className="flex-1 overflow-y-auto px-6 pt-0 pb-4">
+                <div className="flex-1 overflow-y-auto px-6 py-4">
                   <div className="space-y-4">
                     {selectedMessages.map((message) => (
                       <div
@@ -791,6 +797,7 @@ function InboxContent() {
                         </div>
                       </div>
                     ))}
+                    <div ref={messagesEndRef} />
                   </div>
                 </div>
 
