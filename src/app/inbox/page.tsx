@@ -7,6 +7,7 @@ import { AppLayout, useMobileMenu } from '@/components/layout/AppLayout'
 import { Sidebar } from '@/components/dashboard/Sidebar'
 import { SocialAccount, fetchUserSocialAccounts } from '@/lib/social-accounts'
 import { Send, User, Instagram } from 'lucide-react'
+import Logo from '@/components/Logo'
 import { 
   fetchConversations, 
   fetchMessages, 
@@ -449,7 +450,27 @@ function InboxContent() {
   return (
     <>
     <div className="min-h-screen bg-gray-100">
-      <div className="flex h-screen">
+      {/* Navigation */}
+      <nav className="bg-white shadow fixed top-0 left-0 right-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <Logo className="h-16 w-auto text-[#61497e]" />
+            <div className="flex items-center space-x-4">
+              <span className="text-gray-700">{user?.email}</span>
+              <form action="/auth/signout" method="post">
+                <button
+                  type="submit"
+                  className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Sign out
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div className="flex h-[calc(100vh-4rem)]">
         {/* Sidebar */}
         <Sidebar 
           accounts={accounts} 
@@ -460,38 +481,6 @@ function InboxContent() {
 
         {/* Main Content - Three Panel Layout */}
         <div className="flex-1 lg:ml-64 flex flex-col h-full">
-          {/* Connection Status Banner */}
-          {facebookStatus && facebookStatus !== 'success' && (
-            <div className="bg-blue-50 border-b border-blue-200 px-4 py-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm text-blue-700">
-                      {facebookStatus === 'no_messages' && 'No messages found. Connect your Instagram or Facebook page to start receiving messages.'}
-                      {facebookStatus.includes('not found') && 'No Instagram or Facebook accounts connected yet.'}
-                      {facebookStatus.includes('FB:') && facebookStatus.includes('IG:') && (
-                        <>Facebook: {facebookStatus.split('|')[0].replace('FB:', '').trim()} | Instagram: {facebookStatus.split('|')[1].replace('IG:', '').trim()}</>
-                      )}
-                      {facebookStatus.includes('Permission') && ' Facebook needs pages_messaging permission (via Messenger product). Instagram needs instagram_manage_messages permission.'}
-                      {!facebookStatus.includes('not found') && !facebookStatus.includes('no_messages') && !facebookStatus.includes('Permission') && !facebookStatus.includes('FB:') && facebookStatus}
-                    </p>
-                  </div>
-                </div>
-                <a 
-                  href="/settings" 
-                  className="ml-4 px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 whitespace-nowrap"
-                >
-                  Go to Settings
-                </a>
-              </div>
-            </div>
-          )}
-          
           {/* Database Error Banner */}
           {dbError && (
             <div className="bg-yellow-50 border-b border-yellow-200 px-4 py-3">
