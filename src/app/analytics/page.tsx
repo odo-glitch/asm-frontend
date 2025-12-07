@@ -132,56 +132,94 @@ function AnalyticsContent() {
 
       setIsLoading(true)
       try {
-        // Generate analytics based on connected accounts
-        if (accounts.length > 0) {
-          // Generate engagement data for the last 30 days
-          const days = timeframe === '7days' ? 7 : timeframe === '30days' ? 30 : 90
-          const engagement = Array.from({ length: days }, (_, i) => ({
-            day: new Date(Date.now() - (days - 1 - i) * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-            engagement: Math.floor(Math.random() * 800 * accounts.length) + 200,
-            impressions: Math.floor(Math.random() * 2500 * accounts.length) + 1000
-          }))
-
-          // Platform data based on connected accounts
-          const platforms = accounts.reduce((acc: Array<{ platform: string; engagement: number; accountName: string }>, account: SocialAccount) => {
-            const engagementValue = Math.floor(Math.random() * 5000) + 1000
-            acc.push({ 
-              platform: account.platform.charAt(0).toUpperCase() + account.platform.slice(1),
-              engagement: engagementValue,
-              accountName: account.account_name
-            })
-            return acc
-          }, [])
-
-          // Follower growth data
-          const followerGrowth = Array.from({ length: 7 }, (_, i) => ({
-            week: `Week ${i + 1}`,
-            followers: 10000 + (i * 250 * accounts.length) + Math.floor(Math.random() * 100)
-          }))
-
-          // Top posts based on connected accounts
-          const posts = accounts.flatMap((account: SocialAccount) => [
-            {
-              id: `${account.id}-1`,
-              content: `Great engagement on ${account.platform}! Thanks to all our followers.`,
-              platform: account.platform.charAt(0).toUpperCase() + account.platform.slice(1),
-              likes: Math.floor(Math.random() * 3000) + 500,
-              comments: Math.floor(Math.random() * 200) + 20,
-              date: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()
+        const days = timeframe === '7days' ? 7 : timeframe === '30days' ? 30 : 90
+        
+        // Fetch real analytics from backend for each platform
+        const analyticsPromises = accounts.map(async (account: SocialAccount) => {
+          try {
+            const userId = account.user_id
+            const response = await fetch(
+              `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/${account.platform}/analytics/${userId}?days=${days}`
+            )
+            
+            if (!response.ok) {
+              console.error(`Failed to fetch ${account.platform} analytics:`, await response.text())
+              return null
             }
-          ])
+            
+            return await response.json()
+          } catch (error) {
+            console.error(`Error fetching ${account.platform} analytics:`, error)
+            return null
+          }
+        })
 
+        const analyticsResults = await Promise.all(analyticsPromises)
+        const validAnalytics = analyticsResults.filter(result => result !== null)
+
+        if (validAnalytics.length === 0) {
+          // No data available, set empty state
           setAnalyticsData({
-            totalImpressions: engagement.reduce((sum, day) => sum + day.impressions, 0),
-            totalEngagements: engagement.reduce((sum, day) => sum + day.engagement, 0),
-            followerGrowth: Math.floor(Math.random() * 2000) + 500,
-            postsPublished: accounts.length * 12,
-            engagementData: engagement,
-            platformData: platforms,
-            followerGrowthData: followerGrowth,
-            topPosts: posts.sort((a, b) => b.likes - a.likes).slice(0, 5)
+            totalImpressions: 0,
+            totalEngagements: 0,
+            followerGrowth: 0,
+            postsPublished: 0,
+            engagementData: [],
+            platformData: [],
+            followerGrowthData: [],
+            topPosts: []
           })
+          setIsLoading(false)
+          return
         }
+
+        // Aggregate analytics from all platforms
+        const totalEngagements = validAnalytics.reduce((sum, result) => sum + result.analytics.total_engagements, 0)
+        const totalPosts = validAnalytics.reduce((sum, result) => sum + result.analytics.total_posts, 0)
+        const totalLikes = validAnalytics.reduce((sum, result) => sum + result.analytics.total_likes, 0)
+        const totalComments = validAnalytics.reduce((sum, result) => sum + result.analytics.total_comments, 0)
+
+        // Platform data for chart
+        const platformData = validAnalytics.map(result => ({
+          platform: result.platform.charAt(0).toUpperCase() + result.platform.slice(1),
+          engagement: result.analytics.total_engagements,
+          accountName: result.account_name
+        }))
+
+        // Collect all posts from all platforms
+        const allPosts = validAnalytics.flatMap(result => 
+          result.posts.map((post: any) => ({
+            id: post.id,
+            content: post.content.substring(0, 100) + (post.content.length > 100 ? '...' : ''),
+            platform: result.platform.charAt(0).toUpperCase() + result.platform.slice(1),
+            likes: post.likes,
+            comments: post.comments,
+            date: post.created_time
+          }))
+        )
+
+        // Sort by engagement (likes + comments) and get top 5
+        const topPosts = allPosts
+          .sort((a, b) => (b.likes + b.comments) - (a.likes + a.comments))
+          .slice(0, 5)
+
+        // Generate engagement timeline (simplified - would need more detailed API data for actual timeline)
+        const engagementData = Array.from({ length: days }, (_, i) => ({
+          day: new Date(Date.now() - (days - 1 - i) * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          engagement: Math.floor(totalEngagements / days),
+          impressions: 0 // Would need additional API calls for impressions
+        }))
+
+        setAnalyticsData({
+          totalImpressions: 0, // Not available from current API
+          totalEngagements: totalEngagements,
+          followerGrowth: 0, // Would need additional API call
+          postsPublished: totalPosts,
+          engagementData: engagementData,
+          platformData: platformData,
+          followerGrowthData: [], // Would need additional API call
+          topPosts: topPosts
+        })
       } catch (error) {
         console.error('Failed to load analytics data:', error)
       } finally {
