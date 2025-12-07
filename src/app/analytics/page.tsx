@@ -176,8 +176,6 @@ function AnalyticsContent() {
         // Aggregate analytics from all platforms
         const totalEngagements = validAnalytics.reduce((sum, result) => sum + result.analytics.total_engagements, 0)
         const totalPosts = validAnalytics.reduce((sum, result) => sum + result.analytics.total_posts, 0)
-        const totalLikes = validAnalytics.reduce((sum, result) => sum + result.analytics.total_likes, 0)
-        const totalComments = validAnalytics.reduce((sum, result) => sum + result.analytics.total_comments, 0)
 
         // Platform data for chart
         const platformData = validAnalytics.map(result => ({
@@ -187,8 +185,19 @@ function AnalyticsContent() {
         }))
 
         // Collect all posts from all platforms
+        interface PostData {
+          id: string;
+          content: string;
+          platform: string;
+          likes: number;
+          comments: number;
+          shares?: number;
+          engagement?: number;
+          created_time: string;
+        }
+
         const allPosts = validAnalytics.flatMap(result => 
-          result.posts.map((post: any) => ({
+          result.posts.map((post: PostData) => ({
             id: post.id,
             content: post.content.substring(0, 100) + (post.content.length > 100 ? '...' : ''),
             platform: result.platform.charAt(0).toUpperCase() + result.platform.slice(1),
