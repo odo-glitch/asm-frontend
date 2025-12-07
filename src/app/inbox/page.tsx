@@ -470,7 +470,7 @@ function InboxContent() {
         </div>
       </nav>
 
-      <div className="flex h-[calc(100vh-4rem)] mt-16">
+      <div className="flex h-screen">
         {/* Sidebar */}
         <Sidebar 
           accounts={accounts} 
