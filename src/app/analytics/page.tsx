@@ -297,21 +297,11 @@ function AnalyticsContent() {
         <>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <KPICard
-          title="Total Impressions"
-          value={formatNumber(analyticsData.totalImpressions)}
-          icon={<Eye className="w-6 h-6 text-blue-600" />}
-        />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <KPICard
           title="Total Engagements"
           value={formatNumber(analyticsData.totalEngagements)}
           icon={<MessageSquare className="w-6 h-6 text-blue-600" />}
-        />
-        <KPICard
-          title="Follower Growth"
-          value={`+${formatNumber(analyticsData.followerGrowth)}`}
-          icon={<Users className="w-6 h-6 text-blue-600" />}
         />
         <KPICard
           title="Posts Published"
