@@ -470,7 +470,7 @@ function InboxContent() {
         </div>
       </nav>
 
-      <div className="flex h-[calc(100vh-4rem)]">
+      <div className="flex h-[calc(100vh-4rem)] mt-16">
         {/* Sidebar */}
         <Sidebar 
           accounts={accounts} 
@@ -627,8 +627,8 @@ function InboxContent() {
                 </div>
 
                 {/* Messages */}
-                <div className="flex-1 overflow-y-auto px-6 py-4">
-                  <div className="space-y-4">
+                <div className="flex-1 overflow-y-auto px-6 py-4" style={{ scrollbarGutter: 'stable' }}>
+                  <div className="space-y-4 pb-2">
                     {selectedMessages.map((message) => (
                       <div
                         key={message.id}
