@@ -33,12 +33,12 @@ import {
 interface KPICardProps {
   title: string
   value: string | number
-  change: number
+  change?: number
   icon: React.ReactNode
 }
 
 function KPICard({ title, value, change, icon }: KPICardProps) {
-  const isPositive = change >= 0
+  const isPositive = change !== undefined ? change >= 0 : true
 
   return (
     <Card className="p-6">
@@ -46,10 +46,12 @@ function KPICard({ title, value, change, icon }: KPICardProps) {
         <div className="p-2 bg-blue-100 rounded-lg">
           {icon}
         </div>
-        <div className={`flex items-center text-sm ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-          {isPositive ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
-          <span>{Math.abs(change)}%</span>
-        </div>
+        {change !== undefined && (
+          <div className={`flex items-center text-sm ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+            {isPositive ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
+            <span>{Math.abs(change)}%</span>
+          </div>
+        )}
       </div>
       <h3 className="text-2xl font-bold mb-1">{value}</h3>
       <p className="text-sm text-gray-600">{title}</p>
@@ -138,16 +140,22 @@ function AnalyticsContent() {
         const analyticsPromises = accounts.map(async (account: SocialAccount) => {
           try {
             const userId = account.user_id
-            const response = await fetch(
-              `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/${account.platform}/analytics/${userId}?days=${days}`
-            )
+            const platform = account.platform.toLowerCase()
+            const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/${platform}/analytics/${userId}?days=${days}`
+            
+            console.log(`Fetching analytics for ${account.platform} (${account.account_name}):`, url)
+            
+            const response = await fetch(url)
             
             if (!response.ok) {
-              console.error(`Failed to fetch ${account.platform} analytics:`, await response.text())
+              const errorText = await response.text()
+              console.error(`Failed to fetch ${account.platform} analytics:`, response.status, errorText)
               return null
             }
             
-            return await response.json()
+            const data = await response.json()
+            console.log(`✓ Got ${account.platform} analytics:`, data.analytics)
+            return data
           } catch (error) {
             console.error(`Error fetching ${account.platform} analytics:`, error)
             return null
@@ -293,25 +301,21 @@ function AnalyticsContent() {
         <KPICard
           title="Total Impressions"
           value={formatNumber(analyticsData.totalImpressions)}
-          change={12.5}
           icon={<Eye className="w-6 h-6 text-blue-600" />}
         />
         <KPICard
           title="Total Engagements"
           value={formatNumber(analyticsData.totalEngagements)}
-          change={8.3}
           icon={<MessageSquare className="w-6 h-6 text-blue-600" />}
         />
         <KPICard
           title="Follower Growth"
           value={`+${formatNumber(analyticsData.followerGrowth)}`}
-          change={15.2}
           icon={<Users className="w-6 h-6 text-blue-600" />}
         />
         <KPICard
           title="Posts Published"
           value={analyticsData.postsPublished}
-          change={-5.2}
           icon={<FileText className="w-6 h-6 text-blue-600" />}
         />
       </div>
