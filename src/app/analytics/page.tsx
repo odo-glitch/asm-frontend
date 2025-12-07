@@ -310,44 +310,8 @@ function AnalyticsContent() {
         />
       </div>
 
-      {/* Main Chart - Engagement Over Time */}
-      <Card className="p-6">
-        <h2 className="text-xl font-semibold mb-6">Engagement Over Time</h2>
-        <div className="h-[400px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={analyticsData.engagementData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis 
-                dataKey="day" 
-                tick={{ fontSize: 12 }}
-                interval={4}
-              />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="engagement"
-                stroke="#3B82F6"
-                strokeWidth={2}
-                dot={false}
-                name="Engagements"
-              />
-              <Line
-                type="monotone"
-                dataKey="impressions"
-                stroke="#10B981"
-                strokeWidth={2}
-                dot={false}
-                name="Impressions"
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </Card>
-
       {/* Comparison Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         {/* Performance by Platform */}
         <Card className="p-6">
           <h2 className="text-xl font-semibold mb-6">Performance by Platform</h2>
@@ -380,28 +344,6 @@ function AnalyticsContent() {
                   radius={[8, 8, 0, 0]}
                 />
               </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-
-        {/* Follower Growth */}
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-6">Follower Growth</h2>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={analyticsData.followerGrowthData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="week" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Line
-                  type="monotone"
-                  dataKey="followers"
-                  stroke="#10B981"
-                  strokeWidth={2}
-                  dot={{ fill: '#10B981', r: 4 }}
-                />
-              </LineChart>
             </ResponsiveContainer>
           </div>
         </Card>
