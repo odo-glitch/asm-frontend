@@ -49,7 +49,7 @@
 </head>
 <body>
     <h1>Privacy Policy</h1>
-    <p class="last-updated">Last Updated: October 15, 2025</p>
+    <p class="last-updated">Last Updated: December 8, 2025</p>
     <p><strong>Odo Social Media</strong> - A product of <strong>Odo Marketing</strong></p>
 
     <div class="section">
@@ -69,77 +69,167 @@
 
         <div class="permission-box">
             <h3>Facebook Permissions</h3>
+            
             <strong>pages_show_list</strong>
             <ul>
                 <li><strong>What:</strong> Access to the list of Facebook Pages you manage</li>
                 <li><strong>Why:</strong> To allow you to select which Page to manage through our app</li>
-                <li><strong>Data Stored:</strong> Page name, Page ID</li>
+                <li><strong>Data Stored:</strong> Page name, Page ID, profile picture URL</li>
             </ul>
 
             <strong>pages_read_engagement</strong>
             <ul>
                 <li><strong>What:</strong> Read posts, comments, and engagement metrics from your Page</li>
                 <li><strong>Why:</strong> To display analytics, comments, and engagement data in your dashboard</li>
-                <li><strong>Data Stored:</strong> Post content, engagement statistics (likes, comments, shares)</li>
+                <li><strong>Data Stored:</strong> Post content, engagement statistics (likes, comments, shares, reach)</li>
             </ul>
 
             <strong>pages_manage_posts</strong>
             <ul>
                 <li><strong>What:</strong> Create, edit, and schedule posts on your Facebook Page</li>
                 <li><strong>Why:</strong> To enable you to publish and schedule content from our platform</li>
-                <li><strong>Data Stored:</strong> Scheduled posts, post drafts</li>
+                <li><strong>Data Stored:</strong> Scheduled posts, post drafts, media files</li>
+            </ul>
+
+            <strong>pages_read_user_content</strong>
+            <ul>
+                <li><strong>What:</strong> Read content posted by visitors to your Page</li>
+                <li><strong>Why:</strong> To display customer messages and comments in our unified inbox</li>
+                <li><strong>Data Stored:</strong> Visitor posts, comments, customer messages (temporarily cached)</li>
             </ul>
 
             <strong>pages_messaging</strong>
             <ul>
-                <li><strong>What:</strong> Read and send messages on behalf of your Facebook Page</li>
+                <li><strong>What:</strong> Read and send Messenger messages on behalf of your Facebook Page</li>
                 <li><strong>Why:</strong> To manage customer conversations through our unified inbox</li>
-                <li><strong>Data Stored:</strong> Message content (temporarily for display purposes only)</li>
+                <li><strong>Data Stored:</strong> Message content (temporarily cached for display), conversation metadata</li>
+            </ul>
+
+            <strong>pages_utility_messaging</strong>
+            <ul>
+                <li><strong>What:</strong> Send automated utility messages (appointment reminders, order updates)</li>
+                <li><strong>Why:</strong> To send transactional notifications to customers who initiated conversations</li>
+                <li><strong>Data Stored:</strong> Message templates, delivery status</li>
             </ul>
 
             <strong>pages_manage_metadata</strong>
             <ul>
-                <li><strong>What:</strong> Subscribe to webhooks for real-time updates</li>
-                <li><strong>Why:</strong> To receive notifications about new messages and comments in real-time</li>
+                <li><strong>What:</strong> Subscribe to webhooks for real-time Page activity updates</li>
+                <li><strong>Why:</strong> To receive instant notifications about new messages and comments without polling</li>
                 <li><strong>Data Stored:</strong> Webhook subscription configuration</li>
             </ul>
 
             <strong>pages_manage_engagement</strong>
             <ul>
-                <li><strong>What:</strong> Create, edit, and delete comments on Page posts</li>
-                <li><strong>Why:</strong> To allow you to respond to comments directly from our app</li>
+                <li><strong>What:</strong> Create, edit, and delete comments and reactions on Page posts</li>
+                <li><strong>Why:</strong> To allow you to respond to comments and moderate your Page directly from our app</li>
                 <li><strong>Data Stored:</strong> Comment responses (copies of what you post)</li>
+            </ul>
+
+            <strong>business_management</strong>
+            <ul>
+                <li><strong>What:</strong> Access to Facebook Business Manager assets and Pages</li>
+                <li><strong>Why:</strong> For agencies managing multiple client Pages through Business Manager</li>
+                <li><strong>Data Stored:</strong> Business account structure, associated Pages and assets</li>
+            </ul>
+
+            <strong>public_profile</strong> (Default)
+            <ul>
+                <li><strong>What:</strong> Basic profile information (name, profile picture)</li>
+                <li><strong>Why:</strong> For user authentication and displaying your identity in the app</li>
+                <li><strong>Data Stored:</strong> Your name, profile picture, user ID</li>
+            </ul>
+
+            <strong>email</strong> (Default)
+            <ul>
+                <li><strong>What:</strong> Your primary email address</li>
+                <li><strong>Why:</strong> For account creation, notifications, and account recovery</li>
+                <li><strong>Data Stored:</strong> Email address</li>
             </ul>
         </div>
 
         <div class="permission-box">
             <h3>Instagram Permissions</h3>
+            
             <strong>instagram_basic</strong>
             <ul>
-                <li><strong>What:</strong> Basic access to your Instagram Business account</li>
-                <li><strong>Why:</strong> Required to connect your Instagram Business account</li>
-                <li><strong>Data Stored:</strong> Account name, profile picture, Instagram ID</li>
+                <li><strong>What:</strong> Basic access to your Instagram Business/Creator account</li>
+                <li><strong>Why:</strong> Required to connect your Instagram account and access media</li>
+                <li><strong>Data Stored:</strong> Account name, username, profile picture, Instagram account ID</li>
             </ul>
 
             <strong>instagram_manage_messages</strong>
             <ul>
                 <li><strong>What:</strong> Read and send Instagram Direct Messages</li>
                 <li><strong>Why:</strong> To manage customer conversations through our unified inbox</li>
-                <li><strong>Data Stored:</strong> Message content (temporarily for display purposes only)</li>
+                <li><strong>Data Stored:</strong> Message content (temporarily cached), conversation metadata</li>
             </ul>
 
             <strong>instagram_manage_comments</strong>
             <ul>
-                <li><strong>What:</strong> Read and respond to comments on your posts</li>
-                <li><strong>Why:</strong> To allow you to manage engagement from our dashboard</li>
-                <li><strong>Data Stored:</strong> Comment text and replies</li>
+                <li><strong>What:</strong> Read and respond to comments on your Instagram posts</li>
+                <li><strong>Why:</strong> To allow you to manage engagement and customer interactions from our dashboard</li>
+                <li><strong>Data Stored:</strong> Comment text, replies, commenter information</li>
             </ul>
 
             <strong>instagram_content_publish</strong>
             <ul>
-                <li><strong>What:</strong> Create and publish content to Instagram</li>
-                <li><strong>Why:</strong> To enable post scheduling and publishing</li>
-                <li><strong>Data Stored:</strong> Scheduled posts, media files</li>
+                <li><strong>What:</strong> Create and publish photos, videos, and stories to Instagram</li>
+                <li><strong>Why:</strong> To enable post scheduling and automated publishing</li>
+                <li><strong>Data Stored:</strong> Scheduled posts, media files, captions, hashtags</li>
+            </ul>
+
+            <strong>instagram_manage_insights</strong>
+            <ul>
+                <li><strong>What:</strong> Access Instagram analytics and insights data</li>
+                <li><strong>Why:</strong> To display performance metrics in our Analytics dashboard</li>
+                <li><strong>Data Stored:</strong> Engagement metrics, follower demographics, post insights</li>
+            </ul>
+        </div>
+
+        <div class="permission-box">
+            <h3>Other Platform Integrations</h3>
+            
+            <strong>LinkedIn</strong>
+            <ul>
+                <li><strong>Permissions:</strong> r_liteprofile, r_emailaddress, w_member_social</li>
+                <li><strong>Data Accessed:</strong> Profile information, posting to your LinkedIn feed</li>
+                <li><strong>Purpose:</strong> Schedule and publish LinkedIn posts, display profile info</li>
+            </ul>
+
+            <strong>Twitter/X</strong>
+            <ul>
+                <li><strong>Permissions:</strong> Read and write access, offline access</li>
+                <li><strong>Data Accessed:</strong> Tweet content, user profile, post engagement metrics</li>
+                <li><strong>Purpose:</strong> Schedule and publish tweets, view analytics</li>
+            </ul>
+
+            <strong>Google Business Profile</strong>
+            <ul>
+                <li><strong>Permissions:</strong> Business locations, posts, reviews management</li>
+                <li><strong>Data Accessed:</strong> Location info, posts, reviews</li>
+                <li><strong>Purpose:</strong> Manage Google Business posts and respond to reviews</li>
+            </ul>
+
+            <strong>TikTok</strong>
+            <ul>
+                <li><strong>Permissions:</strong> Video upload, account information</li>
+                <li><strong>Data Accessed:</strong> Profile info, video publishing capability</li>
+                <li><strong>Purpose:</strong> Schedule and publish TikTok videos</li>
+            </ul>
+
+            <strong>Dropbox (Optional)</strong>
+            <ul>
+                <li><strong>Permissions:</strong> File access, upload</li>
+                <li><strong>Data Accessed:</strong> Media files you choose to connect</li>
+                <li><strong>Purpose:</strong> Import media from Dropbox for social media posts</li>
+            </ul>
+
+            <strong>Canva (Optional)</strong>
+            <ul>
+                <li><strong>Permissions:</strong> Design access, export</li>
+                <li><strong>Data Accessed:</strong> Your Canva designs</li>
+                <li><strong>Purpose:</strong> Import designs directly from Canva for posting</li>
             </ul>
         </div>
     </div>
@@ -246,7 +336,7 @@
         <ul>
             <li><strong>Company:</strong> Odo Marketing</li>
             <li><strong>Email:</strong> <a href="mailto:odo@odomarketing.com">odo@odomarketing.com</a></li>
-            <li><strong>Website:</strong> <a href="https://asm-frontend-omega.vercel.app">https://asm-frontend-omega.vercel.app</a></li>
+            <li><strong>Website:</strong> <a href="https://socialapp.odomarketing.com">https://socialapp.odomarketing.com</a></li>
         </ul>
     </div>
 
